@@ -20,7 +20,11 @@ public class DCRGraph {
     private HashMap<String, HashSet<String>> excludesTo = new HashMap<>();
     private HashMap<String, HashSet<String>> includesTo = new HashMap<>();
 
-    private DCRMarking dcrMarking = new DCRMarking();
+    public DCRMarking dcrMarking = new DCRMarking();
+
+    public DCRGraph(){
+
+    }
 
     public DCRGraph(final String path){
         try {
@@ -232,7 +236,7 @@ public class DCRGraph {
         return true;
     }
 
-    private HashSet<String> getOnesDependency(String participant) {
+    public HashSet<String> getOnesDependency(String participant) {
         HashSet<String> res = new HashSet<>();
         // 1. itself
         res.add(participant);
@@ -343,7 +347,7 @@ public class DCRGraph {
     }
 
     // input: a role. output: the participants that the role initiates.
-    private List<Participant> getARolesInteractions(String role){
+    public List<Participant> getARolesInteractions(String role){
         List<Participant> res = new ArrayList<>();
         for (Participant p: jsondcr.getParticipants()){
             if (p.getInitiator().equals(role)){
@@ -351,5 +355,61 @@ public class DCRGraph {
             }
         }
         return res;
+    }
+
+    public HashSet<String> getEvents() {
+        return events;
+    }
+
+    public void setEvents(HashSet<String> events) {
+        this.events = events;
+    }
+
+    public HashMap<String, HashSet<String>> getConditionsFor() {
+        return conditionsFor;
+    }
+
+    public void setConditionsFor(HashMap<String, HashSet<String>> conditionsFor) {
+        this.conditionsFor = conditionsFor;
+    }
+
+    public HashMap<String, HashSet<String>> getMilestonesFor() {
+        return milestonesFor;
+    }
+
+    public void setMilestonesFor(HashMap<String, HashSet<String>> milestonesFor) {
+        this.milestonesFor = milestonesFor;
+    }
+
+    public HashMap<String, HashSet<String>> getResponsesTo() {
+        return responsesTo;
+    }
+
+    public void setResponsesTo(HashMap<String, HashSet<String>> responsesTo) {
+        this.responsesTo = responsesTo;
+    }
+
+    public HashMap<String, HashSet<String>> getExcludesTo() {
+        return excludesTo;
+    }
+
+    public void setExcludesTo(HashMap<String, HashSet<String>> excludesTo) {
+        this.excludesTo = excludesTo;
+    }
+
+    public HashMap<String, HashSet<String>> getIncludesTo() {
+        return includesTo;
+    }
+
+    public void setIncludesTo(HashMap<String, HashSet<String>> includesTo) {
+        this.includesTo = includesTo;
+    }
+
+    public DCRMarking getDcrMarking() {
+        return dcrMarking;
+    }
+
+    public void setDcrMarking(DCRMarking dcrMarking) {
+        this.dcrMarking = dcrMarking;
     }
 }

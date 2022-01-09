@@ -12,5 +12,7 @@ public class DCR {
         DCRGraph dcrGraph = new DCRGraph(filePath);
         // check Projectability.
         System.out.println(ProjectableChecker.isProjectable(dcrGraph,"Seller2"));
+
+
     }
 }
