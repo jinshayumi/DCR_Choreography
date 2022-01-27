@@ -346,7 +346,8 @@ public class DCRGraph {
         return false;
     }
 
-    // input: a role. output: the participants that the role initiates.
+    // input: a role.
+    // output: the participants that the role initiates.
     public List<Participant> getARolesInteractions(String role){
         List<Participant> res = new ArrayList<>();
         for (Participant p: jsondcr.getParticipants()){

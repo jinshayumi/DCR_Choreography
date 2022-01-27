@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public class SigmaSet {
+    // get a role's
     public static HashSet<String> getSigmaSet(DCRGraph dcrGraph, String role){
         List<Participant> participants = dcrGraph.getARolesInteractions(role);
         HashSet<String> res = new HashSet<>();
