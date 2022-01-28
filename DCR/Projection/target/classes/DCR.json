@@ -1,0 +1,81 @@
+{
+  "participants": [
+    {
+      "identity": "interactionAsk",
+      "initiator": "Buyer",
+      "action": "Ask",
+      "receivers": ["Seller1", "Seller2"],
+      "belongGroups": ["Negotiate"],
+      "relationship": {
+        "condition": ["Quotes"],
+        "response": ["Quotes"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Quote1",
+      "initiator": "Seller1",
+      "action": "Quote",
+      "receivers": ["Buyer"],
+      "belongGroups": ["Quotes"],
+      "relationship": {
+        "response": ["Accept1"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Accept1",
+      "initiator": "Buyer",
+      "action": "Accept1",
+      "receivers": ["Seller1", "Seller2"],
+      "belongGroups": ["Decide"],
+      "relationship": {
+        "exclusion": ["Quote2"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Quote2",
+      "initiator": "Seller2",
+      "action": "Quote",
+      "receivers": ["Buyer"],
+      "belongGroups": ["Quotes"],
+      "relationship": {
+        "response": ["Accept1"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    }
+  ],
+
+  "groups": [
+    {
+      "identity": "Quotes",
+      "relationship": {
+        "condition": ["Decide"],
+        "milestone": ["Decide"]
+      }
+    },
+    {
+      "identity": "Decide",
+      "relationship": {
+        "exclusion": ["Decide"]
+      }
+    }
+  ]
+}
