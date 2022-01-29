@@ -54,13 +54,14 @@ public class ProjectionImp implements IProjection{
         HashSet<String> projectionIncluded = new HashSet<>();
         HashSet<String> conditionToSigma = getARelationship(dcrGraph, "getConditionsFor", sigmaSet);
         HashSet<String> mileStoneToSigma = getARelationship(dcrGraph, "getMilestonesFor", sigmaSet);
-        conditionToSigma.addAll(mileStoneToSigma);
-        conditionToSigma.addAll(sigmaSet);
+        HashSet<String> lhs1 = new HashSet<>(conditionToSigma);
+        lhs1.addAll(mileStoneToSigma);
+        lhs1.addAll(sigmaSet);
         HashSet<String> lhs = new HashSet<>();
-        lhs.addAll(conditionToSigma);
+        lhs.addAll(lhs1);
         lhs.retainAll(dcrGraph.getDcrMarking().included);
         HashSet<String> rhs = new HashSet<>(res.getEvents());
-        rhs.removeAll(conditionToSigma);
+        rhs.removeAll(lhs1);
 
         projectionIncluded.addAll(lhs);
         projectionIncluded.addAll(rhs);
@@ -114,6 +115,64 @@ public class ProjectionImp implements IProjection{
         return res;
     }
 
+    @Override
+    public DCRGraph endUpProjection(final DCRGraph choreography, final DCRGraph sigmaProjection, String role) {
+        DCRGraph res = new DCRGraph();
+        // E'.
+        HashSet<String> eventsPrime = getARolesInteractionAsReceiver(choreography, role);
+
+        // M'.
+        DCRMarking mPrime = new DCRMarking();
+        HashSet<String> eExceptIn = new HashSet<>(choreography.getEvents());
+        eExceptIn.removeAll(choreography.getDcrMarking().included);
+        mPrime.included = new HashSet<>(eventsPrime);
+        mPrime.included.removeAll(eExceptIn);
+
+        // E|_{sigma} U E'.
+        HashSet <String> events = new HashSet<>(eventsPrime);
+        events.addAll(sigmaProjection.getEvents());
+        res.setEvents(events);
+
+        // M U M'
+        DCRMarking markings = new DCRMarking();
+        markings.included = new HashSet<>(sigmaProjection.getDcrMarking().included);
+        markings.included.addAll(mPrime.included);
+        markings.executed = new HashSet<>(sigmaProjection.getDcrMarking().executed);
+        markings.pending = new HashSet<>(sigmaProjection.getDcrMarking().pending);
+        res.setDcrMarking(markings);
+
+        // Relationships.
+        res.setConditionsFor(new HashMap<>(sigmaProjection.getConditionsFor()));
+        res.setResponsesTo(new HashMap<>(sigmaProjection.getResponsesTo()));
+        res.setMilestonesFor(new HashMap<>(sigmaProjection.getMilestonesFor()));
+        res.setIncludesTo(new HashMap<>(sigmaProjection.getIncludesTo()));
+        res.setExcludesTo(new HashMap<>(sigmaProjection.getExcludesTo()));
+
+        return res;
+    }
+
+    @Override
+    public DCRGraph Process(DCRGraph choreography, String role) throws Exception {
+        HashSet<String> sigmaSet = getARolesSigma(choreography, role);
+        DCRGraph sigmaProjection = sigmaProjection(choreography, sigmaSet);
+        DCRGraph buyerEndUpProjection = endUpProjection(choreography, sigmaProjection, role);
+        return buyerEndUpProjection;
+    }
+
+
+    //functions for get a role's end-up projection.
+    private HashSet<String> getARolesInteractionAsReceiver(DCRGraph dcrGraph, String role){
+        HashSet<String> res = new HashSet<>();
+        for (String key: dcrGraph.getEventsReceivers().keySet()){
+            if (dcrGraph.getEventsReceivers().get(key).contains(role)){
+                res.add(key);
+            }
+        }
+        return res;
+    }
+
+
+    // functions for get a role's sigma projection.
     private void addAPair(HashMap<String, HashSet<String>> map, String key, String value){
         if (!map.containsKey(key)){
             HashSet<String> temp = new HashSet<>();
@@ -165,6 +224,8 @@ public class ProjectionImp implements IProjection{
         return res;
     }
 
+
+    // function for getARolesInteraction.
     private HashSet<String> getARelationship(DCRGraph dcrGraph, String relationship, HashSet<String> set) throws Exception {
         Class<?> clazz = Class.forName("models.dcrGraph.DCRGraph");
         Method method = clazz.getMethod(relationship);

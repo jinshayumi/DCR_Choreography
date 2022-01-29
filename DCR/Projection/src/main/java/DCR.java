@@ -13,9 +13,20 @@ public class DCR {
         ProjectionImp projectionImp = new ProjectionImp();
         JsonDCR jsonDCR = modelImp.parseJsonToObject("/Projection/src/main/resources/DCR.json");
         DCRGraph dcrGraph = modelImp.transferToDCRGraph(jsonDCR);
-        boolean seller2Projectable = modelImp.projectable(dcrGraph, "Seller2");
-        HashSet<String> buyerSigma = projectionImp.getARolesSigma(dcrGraph, "Buyer");
-        DCRGraph buyerSigmaProjection = projectionImp.sigmaProjection(dcrGraph, buyerSigma);
+        HashSet<String> roles = new HashSet<>();
+        roles.add("Seller1");
+//        roles.add("Shipper");
+//        roles.add("Seller2");
+
+        for (String role: roles){
+            if (modelImp.projectable(dcrGraph, role)){
+                DCRGraph endUpProjection = projectionImp.Process(dcrGraph, role);
+                System.out.println("Role " + role +" is projectable");
+            }
+            else {
+                System.out.println("Role " + role +" is not projectable");
+            }
+        }
 
 
         System.out.println("finish...");

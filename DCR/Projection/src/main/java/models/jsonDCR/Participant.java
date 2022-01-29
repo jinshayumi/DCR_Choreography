@@ -1,6 +1,8 @@
 package models.jsonDCR;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class Participant implements Serializable {
@@ -8,7 +10,7 @@ public class Participant implements Serializable {
     private String initiator;
     private String action;
     private List<String> receivers;
-    private String belongGroups;
+    private List<String> belongGroups = new ArrayList<>();
     private Relationship relationship = new Relationship();
     private Marking marking;
 
@@ -44,11 +46,11 @@ public class Participant implements Serializable {
         this.receivers = receivers;
     }
 
-    public String getBelongGroups() {
+    public List<String> getBelongGroups() {
         return belongGroups;
     }
 
-    public void setBelongGroups(String belongGroups) {
+    public void setBelongGroups(List<String> belongGroups) {
         this.belongGroups = belongGroups;
     }
 

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class Group implements Serializable {
     private String identity;
-    private Relationship relationship;
+    private Relationship relationship = new Relationship();
 
     public String getIdentity() {
         return identity;
