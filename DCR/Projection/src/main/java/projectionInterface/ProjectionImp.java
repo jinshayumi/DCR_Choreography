@@ -123,8 +123,8 @@ public class ProjectionImp implements IProjection{
 
         // M'.
         DCRMarking mPrime = new DCRMarking();
-        HashSet<String> eExceptIn = new HashSet<>(choreography.getEvents());
-        eExceptIn.removeAll(choreography.getDcrMarking().included);
+        HashSet<String> eExceptIn = new HashSet<>(sigmaProjection.getEvents());
+        eExceptIn.removeAll(sigmaProjection.getDcrMarking().included);
         mPrime.included = new HashSet<>(eventsPrime);
         mPrime.included.removeAll(eExceptIn);
 

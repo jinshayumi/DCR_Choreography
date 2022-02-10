@@ -4,15 +4,15 @@ import java.io.Serializable;
 import java.util.*;
 
 public class JsonDCR implements Serializable {
-    private List<Participant> participants;
+    private List<Event> events;
     private List<Group> groups;
 
-    public List<Participant> getParticipants() {
-        return participants;
+    public List<Event> getEvents() {
+        return events;
     }
 
-    public void setParticipants(List<Participant> participants) {
-        this.participants = participants;
+    public void getEvents(List<Event> participants) {
+        this.events = participants;
     }
 
     public List<Group> getGroups() {

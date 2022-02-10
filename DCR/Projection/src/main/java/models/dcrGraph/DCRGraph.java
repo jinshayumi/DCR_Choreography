@@ -1,6 +1,6 @@
 package models.dcrGraph;
 
-import models.jsonDCR.Participant;
+import models.jsonDCR.Event;
 
 import java.util.ArrayList;
 import java.util.HashMap;

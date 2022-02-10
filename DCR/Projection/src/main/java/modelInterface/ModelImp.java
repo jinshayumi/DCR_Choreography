@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import models.jsonDCR.Participant;
+import models.jsonDCR.Event;
 import org.apache.commons.io.FileUtils;
 
 public class ModelImp implements ModelInterface {
@@ -39,30 +39,30 @@ public class ModelImp implements ModelInterface {
         DCRGraph dcrGraph = new DCRGraph();
 
         // add all the participants: their relationships and states.
-        for (Participant participant: jsonDCR.getParticipants()){
+        for (Event event: jsonDCR.getEvents()){
             // add it to events.
-            dcrGraph.getEvents().add(participant.getIdentity());
+            dcrGraph.getEvents().add(event.getIdentity());
 
             // set the initiators and receivers.
-            dcrGraph.getEventsInitiator().put(participant.getIdentity(), participant.getInitiator());
-            dcrGraph.getEventsReceivers().put(participant.getIdentity(), new HashSet<>(participant.getReceivers()));
+            dcrGraph.getEventsInitiator().put(event.getIdentity(), event.getInitiator());
+            dcrGraph.getEventsReceivers().put(event.getIdentity(), new HashSet<>(event.getReceivers()));
 
             // add the 5 relationships.
-            addRelationship(groupNames, dcrGraph.getConditionsFor(), participant, "getCondition", jsonDCR);
-            addRelationship(groupNames, dcrGraph.getExcludesTo(), participant, "getExclusion", jsonDCR);
-            addRelationship(groupNames, dcrGraph.getIncludesTo(), participant, "getInclusion", jsonDCR);
-            addRelationship(groupNames, dcrGraph.getResponsesTo(), participant, "getResponse", jsonDCR);
-            addRelationship(groupNames, dcrGraph.getMilestonesFor(), participant, "getMilstone", jsonDCR);
+            addRelationship(groupNames, dcrGraph.getConditionsFor(), event, "getCondition", jsonDCR);
+            addRelationship(groupNames, dcrGraph.getExcludesTo(), event, "getExclusion", jsonDCR);
+            addRelationship(groupNames, dcrGraph.getIncludesTo(), event, "getInclusion", jsonDCR);
+            addRelationship(groupNames, dcrGraph.getResponsesTo(), event, "getResponse", jsonDCR);
+            addRelationship(groupNames, dcrGraph.getMilestonesFor(), event, "getMilstone", jsonDCR);
 
             // initiate the state.
-            if (participant.getMarking().isExecuted()){
-                dcrGraph.getDcrMarking().executed.add(participant.getIdentity());
+            if (event.getMarking().isExecuted()){
+                dcrGraph.getDcrMarking().executed.add(event.getIdentity());
             }
-            if (participant.getMarking().isIncluded()){
-                dcrGraph.getDcrMarking().included.add(participant.getIdentity());
+            if (event.getMarking().isIncluded()){
+                dcrGraph.getDcrMarking().included.add(event.getIdentity());
             }
-            if (participant.getMarking().isPending()){
-                dcrGraph.getDcrMarking().pending.add(participant.getIdentity());
+            if (event.getMarking().isPending()){
+                dcrGraph.getDcrMarking().pending.add(event.getIdentity());
             }
 
             // add all the groups' relationships.
@@ -112,16 +112,16 @@ public class ModelImp implements ModelInterface {
         }
     }
 
-    private void addRelationship(HashSet<String> groupNames, HashMap<String, HashSet<String>> relationMap, Participant participant, String aimRelation, JsonDCR jsonDCR) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    private void addRelationship(HashSet<String> groupNames, HashMap<String, HashSet<String>> relationMap, Event event, String aimRelation, JsonDCR jsonDCR) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Class<?> clazz = Class.forName("models.jsonDCR.Relationship");
         Method method = clazz.getMethod(aimRelation);
-        ArrayList<String> eventList = (ArrayList<String>) method.invoke(participant.getRelationship());
+        ArrayList<String> eventList = (ArrayList<String>) method.invoke(event.getRelationship());
         HashSet<String> eventSet = new HashSet<>(eventList);
         HashSet<String> events = new HashSet<>();
-        for (String event: eventSet){
-            events.addAll(getEventsByIdentity(event, groupNames, jsonDCR));
+        for (String e: eventSet){
+            events.addAll(getEventsByIdentity(e, groupNames, jsonDCR));
         }
-        relationMap.put(participant.getIdentity(), events);
+        relationMap.put(event.getIdentity(), events);
     }
 
     private HashSet<String> getEventsByIdentity(String e, HashSet<String> groupNames, JsonDCR jsonDCR) {
@@ -137,9 +137,9 @@ public class ModelImp implements ModelInterface {
 
     public static HashSet<String> getEventsByGroupName(String e, JsonDCR jsonDCR) {
         HashSet<String> res = new HashSet<>();
-        for (Participant participant: jsonDCR.getParticipants()){
-            if (participant.getBelongGroups().contains(e)){
-                res.add(participant.getIdentity());
+        for (Event event: jsonDCR.getEvents()){
+            if (event.getBelongGroups().contains(e)){
+                res.add(event.getIdentity());
             }
         }
         return res;
