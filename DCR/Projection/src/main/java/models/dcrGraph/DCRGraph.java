@@ -2,10 +2,7 @@ package models.dcrGraph;
 
 import models.jsonDCR.Event;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class DCRGraph {
     // E: events
@@ -152,6 +149,75 @@ public class DCRGraph {
             }
         }
         return true;
+    }
+
+    // if the event is enabled.
+    public Boolean enabled(final String event){
+        if (!events.contains(event)){
+            return true;
+        }
+
+        if (!dcrMarking.included.contains(event)){
+            return false;
+        }
+
+        try {
+            final Set<String> inccon = new HashSet<>();
+            for (String con: conditionsFor.keySet()){
+                if (conditionsFor.get(con).contains(event)){
+                    inccon.add(con);
+                }
+            }
+            inccon.retainAll(dcrMarking.included);
+            if(!dcrMarking.executed.containsAll(inccon)){
+                return false;
+            }
+        }
+        catch (Exception e){
+            throw e;
+        }
+
+        try {
+            final Set<String> incmil = new HashSet<>();
+            for (String con: milestonesFor.keySet()){
+                if (milestonesFor.get(con).contains(event)){
+                    incmil.add(con);
+                }
+            }
+            incmil.retainAll(dcrMarking.included);
+            for (final String p:dcrMarking.pending){
+                if (incmil.contains(p)){
+                    return false;
+                }
+            }
+        }catch (Exception e){
+            throw e;
+        }
+
+        return true;
+    }
+
+    // execute the event
+    public void execute(final String event){
+        if(!events.contains(event)){
+            return;
+        }
+
+        if (!this.enabled(event)){
+            return;
+        }
+        dcrMarking.executed.add(event);
+        dcrMarking.pending.remove(event);
+        if (responsesTo.containsKey(event)){
+            dcrMarking.pending.addAll(responsesTo.get(event));
+        }
+        if (excludesTo.containsKey(event)){
+            dcrMarking.included.removeAll(excludesTo.get(event));
+        }
+        if (includesTo.containsKey(event)){
+            dcrMarking.included.addAll(includesTo.get(event));
+        }
+        return;
     }
 
 
