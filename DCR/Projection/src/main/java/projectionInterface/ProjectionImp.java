@@ -3,6 +3,7 @@ package projectionInterface;
 import modelInterface.ModelImp;
 import models.dcrGraph.DCRGraph;
 import models.dcrGraph.DCRMarking;
+import sun.jvm.hotspot.debugger.win32.coff.DebugVC50SymbolEnums;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -155,8 +156,24 @@ public class ProjectionImp implements IProjection{
     public DCRGraph Process(DCRGraph choreography, String role) throws Exception {
         HashSet<String> sigmaSet = getARolesSigma(choreography, role);
         DCRGraph sigmaProjection = sigmaProjection(choreography, sigmaSet);
-        DCRGraph buyerEndUpProjection = endUpProjection(choreography, sigmaProjection, role);
-        return buyerEndUpProjection;
+        DCRGraph roleEndUpProjection = endUpProjection(choreography, sigmaProjection, role);
+        // receivers.
+        for (String event: choreography.getEventsReceivers().keySet()){
+            if (choreography.getEventsReceivers().get(event).contains(role)){
+                HashSet<String> temp = new HashSet<>();
+                temp.add(role);
+                roleEndUpProjection.getEventsInitiator().put(event, choreography.getEventsInitiator().get(event));
+                roleEndUpProjection.getEventsReceivers().put(event, temp);
+            }
+        }
+        // initiators.
+        for (String event: choreography.getEventsInitiator().keySet()){
+            if (choreography.getEventsInitiator().get(event).equals(role)){
+                roleEndUpProjection.getEventsInitiator().put(event, event);
+                roleEndUpProjection.getEventsReceivers().put(event, new HashSet<>(choreography.getEventsReceivers().get(event)));
+            }
+        }
+        return roleEndUpProjection;
     }
 
 

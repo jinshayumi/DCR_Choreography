@@ -8,6 +8,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class InteractServiceImp extends UnicastRemoteObject implements IService {
@@ -30,7 +32,6 @@ public class InteractServiceImp extends UnicastRemoteObject implements IService 
     public void interact(Message message) throws RemoteException {
         System.out.println("hello, "+ "I am " + role + ",\nI receive a message "+ message.getEvent() + " from " + message.getFrom());
         dcrGraph.execute(message.getEvent());
-
     }
 
     public void execute(Message msg) throws NotBoundException, RemoteException {
