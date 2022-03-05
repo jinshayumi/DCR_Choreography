@@ -3,50 +3,48 @@ package services;
 import models.dcrGraph.DCRGraph;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import services.roles.Buyer;
 
 import java.util.HashMap;
+import java.util.Set;
 
 public class AsychroService {
-    private String HOST = "tcp://127.0.0.1:61613";
-    private int qos = 1;
-    private String userName = "admin";
-    private String passWord = "password";
-    private MemoryPersistence persistence = new MemoryPersistence();
+    public String HOST = "tcp://127.0.0.1:61613";
+    public int qos = 1;
+    public String userName = "admin";
+    public String passWord = "password";
+    public MemoryPersistence persistence = new MemoryPersistence();
 
-    private String role;
-    private DCRGraph dcrGraph;
+    public String role;
 
-    private HashMap<String, SubscribeThread> subscribeThreadHashMap;
-
-    public AsychroService(String role, DCRGraph endUpProjection){
+    public AsychroService(String role){
         this.role = role;
-        this.dcrGraph = endUpProjection;
-        subscribeThreadHashMap = new HashMap<>();
-        subscribeTopics(endUpProjection);
     }
 
-    public void execute(String interaction, String aim){
+    public void sendMessage(String interaction, Set<String> aims, String payload){
         try {
-            // 创建客户端
+            // create client.
             MqttClient sampleClient = new MqttClient(HOST, "pub"+role, persistence);
-            // 创建链接参数
+            // create connection options
             MqttConnectOptions connOpts = new MqttConnectOptions();
-            // 在重新启动和重新连接时记住状态
+            // remember state when restarting.
             connOpts.setCleanSession(false);
-            // 设置连接的用户名
+            // username and password.
             connOpts.setUserName(userName);
             connOpts.setPassword(passWord.toCharArray());
-            // 建立连接
+            // connect.
             sampleClient.connect(connOpts);
-            // 创建消息
-            MqttMessage message = new MqttMessage((role + " " + interaction + " " + aim).getBytes());
-            // 设置消息的服务质量
-            message.setQos(qos);
-            // 发布消息
-            sampleClient.publish((role + " " + interaction + " " + aim), message);
-            // 断开连接
+            for(String aim: aims){
+                // message.
+                MqttMessage message = new MqttMessage(payload.getBytes());
+                // qos.
+                message.setQos(qos);
+                // publish.
+                sampleClient.publish((role + "/" + interaction + "/" + aim), message);
+            }
+            // disconnect.
             sampleClient.disconnect();
-            // 关闭客户端
+            // close client.
             sampleClient.close();
         } catch (MqttException me) {
             System.out.println("reason " + me.getReasonCode());
@@ -56,73 +54,5 @@ public class AsychroService {
             System.out.println("excep " + me);
             me.printStackTrace();
         }
-
     }
-
-    private void subscribeTopics(DCRGraph endUpProjection) {
-        for(String event: endUpProjection.getEventsReceivers().keySet()){
-            if (endUpProjection.getEventsReceivers().get(event).contains(role)){
-                SubscribeThread subscribeThread = new SubscribeThread(endUpProjection.getEventsInitiator().get(event)+" " + event + " " + role);
-                subscribeThread.start();
-                subscribeThreadHashMap.put(endUpProjection.getEventsInitiator().get(event)+" " + event + " " + role, subscribeThread);
-            }
-        }
-    }
-
-
-    private class SubscribeThread extends Thread{
-        private String topic;
-
-        public SubscribeThread(String topic){
-            this.topic = topic;
-        }
-
-        @Override
-        public void run(){
-            try {
-                // MemoryPersistence set clientid's save model.
-                MqttClient client = new MqttClient(HOST, "sub" + topic, new MemoryPersistence());
-                // MQTT connection configuration.
-                MqttConnectOptions options = new MqttConnectOptions();
-                // if clear session: false: keep the connection, true: everytime connect to server, use a new id.
-                options.setCleanSession(true);
-                // username.
-                options.setUserName(userName);
-                // password.
-                options.setPassword(passWord.toCharArray());
-                // timeout. s.
-                options.setConnectionTimeout(10);
-                // heartbeat, no reconnection
-                options.setKeepAliveInterval(20);
-                // callback fun.
-                client.setCallback(new MqttCallback() {
-
-                    public void connectionLost(Throwable cause) {
-                        System.out.println(role + " connectionLost");
-                    }
-
-                    public void messageArrived(String topic, MqttMessage message) throws Exception {
-                        System.out.println(role + ": " + "topic:"+topic);
-                        System.out.println(role + ": " + "Qos:"+message.getQos());
-                        System.out.println(role + ": " + "message content:"+new String(message.getPayload()));
-                        synchronized (dcrGraph){
-                            dcrGraph.execute(message.getPayload().toString().split(" ")[1]);
-                        }
-                    }
-
-                    public void deliveryComplete(IMqttDeliveryToken token) {
-                        System.out.println(role + ": " + "deliveryComplete---------"+ token.isComplete());
-                    }
-
-                });
-                client.connect(options);
-                // subscribe.
-                client.subscribe(topic, qos);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
 }

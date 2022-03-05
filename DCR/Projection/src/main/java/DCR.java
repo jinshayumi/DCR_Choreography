@@ -5,6 +5,10 @@ import projectionInterface.ProjectionImp;
 import services.AsychroService;
 import services.IService;
 import services.InteractServiceImp;
+import services.MQTTListener;
+import services.roles.Buyer;
+import services.roles.Seller;
+import services.roles.Shipper;
 import services.utilities.Message;
 
 import java.rmi.registry.LocateRegistry;
@@ -30,23 +34,33 @@ public class DCR {
 //        Registry registry = LocateRegistry.createRegistry(8088);
 //        HashMap<String, InteractServiceImp> roleServiceMap = new HashMap<>();
         HashMap<String, AsychroService> asychroServiceHashMap = new HashMap<>();
+        HashMap<String, DCRGraph> dcrGraphHashMap = new HashMap<>();
         for (String role: roles){
             // if is projectable?
             if (modelImp.projectable(dcrGraph, role)){
                 System.out.println("Role " + role +" is projectable");
                 // generate the end up projection.
                 DCRGraph endUpProjection = projectionImp.Process(dcrGraph, role);
-                System.out.println(" a ");
+                dcrGraphHashMap.put(role, endUpProjection);
 
                 // register function call using rmi.
 //                InteractServiceImp interactServiceImp = new InteractServiceImp(role, endUpProjection);
 //                registry.rebind(role, interactServiceImp);
 //                roleServiceMap.put(role, interactServiceImp);
 
-                // Asyn
 
-                AsychroService asychroService = new AsychroService(role, endUpProjection);
-                asychroServiceHashMap.put(role, asychroService);
+                if(role.equals("Buyer")){
+                    Buyer buyer = new Buyer(role);
+                    asychroServiceHashMap.put(role, buyer);
+                }
+                if (role.startsWith("Seller")){
+                    Seller seller = new Seller(role);
+                    asychroServiceHashMap.put(role, seller);
+                }
+                if (role.equals("Shipper")){
+                    Shipper shipper = new Shipper(role);
+                    asychroServiceHashMap.put(role, shipper);
+                }
             }
             else {
                 System.out.println("Role " + role +" is not projectable");
@@ -54,10 +68,13 @@ public class DCR {
             }
         }
 
-        asychroServiceHashMap.get("Buyer").execute("interactionAsk", "Seller1");
-        asychroServiceHashMap.get("Buyer").execute("interactionAsk", "Seller2");
-        asychroServiceHashMap.get("Seller1").execute("Quote1", "Buyer");
-        asychroServiceHashMap.get("Seller2").execute("Quote2", "Buyer");
+        MQTTListener mqttListener = new MQTTListener(dcrGraphHashMap);
+
+        HashSet<String> receivers = new HashSet<>();
+        receivers.add("Seller1");
+        receivers.add("Seller2");
+        Buyer buyer = (Buyer) asychroServiceHashMap.get("Buyer");
+        buyer.execute("interactionAsk", receivers);
 
 
 // RMI

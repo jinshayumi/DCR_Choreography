@@ -220,6 +220,17 @@ public class DCRGraph {
         return;
     }
 
+    public Set<String> getIncludedPending(){
+        HashSet<String> result = new HashSet<>(dcrMarking.included);
+
+        result.retainAll(dcrMarking.pending);
+        return result;
+    }
+
+    public boolean isAccepting(){
+        return getIncludedPending().isEmpty();
+    }
+
 
     // getters and setters.
     public HashSet<String> getEvents() {
