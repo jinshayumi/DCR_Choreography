@@ -38,7 +38,7 @@ public class DCR {
         for (String role: roles){
             // if is projectable?
             if (modelImp.projectable(dcrGraph, role)){
-                System.out.println("Role " + role +" is projectable");
+                System.out.println("Role " + role + " is projectable");
                 // generate the end up projection.
                 DCRGraph endUpProjection = projectionImp.Process(dcrGraph, role);
                 dcrGraphHashMap.put(role, endUpProjection);
@@ -48,17 +48,18 @@ public class DCR {
 //                registry.rebind(role, interactServiceImp);
 //                roleServiceMap.put(role, interactServiceImp);
 
+                HashSet<String> subscribeTopics = endUpProjection.getSubscribe(role);
 
                 if(role.equals("Buyer")){
-                    Buyer buyer = new Buyer(role);
+                    Buyer buyer = new Buyer(role, subscribeTopics);
                     asychroServiceHashMap.put(role, buyer);
                 }
                 if (role.startsWith("Seller")){
-                    Seller seller = new Seller(role);
+                    Seller seller = new Seller(role, subscribeTopics);
                     asychroServiceHashMap.put(role, seller);
                 }
                 if (role.equals("Shipper")){
-                    Shipper shipper = new Shipper(role);
+                    Shipper shipper = new Shipper(role, subscribeTopics);
                     asychroServiceHashMap.put(role, shipper);
                 }
             }
@@ -68,7 +69,7 @@ public class DCR {
             }
         }
 
-        MQTTListener mqttListener = new MQTTListener(dcrGraphHashMap);
+        MQTTListener mqttListener = new MQTTListener(dcrGraphHashMap, dcrGraph);
 
         HashSet<String> receivers = new HashSet<>();
         receivers.add("Seller1");
@@ -89,7 +90,6 @@ public class DCR {
 //        receivers.add("Seller2");
 //        buyer.execute(new Message("interactionAsk", "Buyer", receivers));
 
-        System.out.println("finish...");
 
     }
 }

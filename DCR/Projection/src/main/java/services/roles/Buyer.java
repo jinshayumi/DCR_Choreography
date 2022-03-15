@@ -14,9 +14,9 @@ public class Buyer extends AsychroService {
     private int price1=-1;
     private int price2=-1;
 
-    public Buyer(String role){
+    public Buyer(String role, HashSet<String> subscribeTopics){
         super(role);
-        subscribeThread = new SubscribeThread("+/+/" + role);
+        subscribeThread = new SubscribeThread(subscribeTopics);
         subscribeThread.run();
     }
 
@@ -25,10 +25,10 @@ public class Buyer extends AsychroService {
     }
 
     private class SubscribeThread extends Thread{
-        private String topic;
+        private HashSet<String> subscribeTopics;
 
-        public SubscribeThread(String topic){
-            this.topic = topic;
+        public SubscribeThread(HashSet<String> subscribeTopics){
+            this.subscribeTopics = subscribeTopics;
         }
 
         @Override
@@ -60,7 +60,7 @@ public class Buyer extends AsychroService {
                         System.out.println(role + ": " + "Qos:"+message.getQos());
                         System.out.println(role + ": " + "message content:"+ new String(message.getPayload()));
 
-                        String interaction = topic.split("/")[1];
+                        String interaction = topic;
                         if(interaction.startsWith("Quote")){
                             if (interaction.equals("Quote1")){
                                 price1 =  Integer.parseInt(new String(message.getPayload()));
@@ -95,7 +95,10 @@ public class Buyer extends AsychroService {
                 });
                 client.connect(options);
                 // subscribe.
-                client.subscribe(topic, qos);
+//                client.subscribe(topic, qos);
+                for (String topic : subscribeTopics){
+                    client.subscribe(topic, qos);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -34,14 +34,12 @@ public class AsychroService {
             connOpts.setPassword(passWord.toCharArray());
             // connect.
             sampleClient.connect(connOpts);
-            for(String aim: aims){
-                // message.
-                MqttMessage message = new MqttMessage(payload.getBytes());
-                // qos.
-                message.setQos(qos);
-                // publish.
-                sampleClient.publish((role + "/" + interaction + "/" + aim), message);
-            }
+            // message.
+            MqttMessage message = new MqttMessage(payload.getBytes());
+            // qos.
+            message.setQos(qos);
+            // publish.
+            sampleClient.publish(interaction, message);
             // disconnect.
             sampleClient.disconnect();
             // close client.

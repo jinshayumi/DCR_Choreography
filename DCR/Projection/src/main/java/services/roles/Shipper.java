@@ -9,17 +9,17 @@ import java.util.HashSet;
 public class Shipper extends AsychroService {
     private SubscribeThread subscribeThread;
 
-    public Shipper(String role) {
+    public Shipper(String role, HashSet<String> subscribeTopics) {
         super(role);
-        subscribeThread = new SubscribeThread("+/+/" + role);
+        subscribeThread = new SubscribeThread(subscribeTopics);
         subscribeThread.run();
     }
 
     private class SubscribeThread extends Thread{
-        private String topic;
+        private HashSet<String> subscribeTopics;
 
-        public SubscribeThread(String topic){
-            this.topic = topic;
+        public SubscribeThread(HashSet<String> subscribeTopics){
+            this.subscribeTopics = subscribeTopics;
         }
 
         @Override
@@ -51,7 +51,7 @@ public class Shipper extends AsychroService {
                         System.out.println(role + ": " + "Qos:"+message.getQos());
                         System.out.println(role + ": " + "message content:"+ new String(message.getPayload()));
 
-                        String interaction = topic.split("/")[1];
+                        String interaction = topic;
 
                         if(interaction.startsWith("Order")){
                             HashSet<String> receivers = new HashSet<>();
@@ -67,7 +67,9 @@ public class Shipper extends AsychroService {
                 });
                 client.connect(options);
                 // subscribe.
-                client.subscribe(topic, qos);
+                for (String topic : subscribeTopics){
+                    client.subscribe(topic, qos);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

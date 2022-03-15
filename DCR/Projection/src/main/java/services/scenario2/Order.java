@@ -1,25 +1,17 @@
-package services.roles;
+package services.scenario2;
 
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import services.AsychroService;
 
 import java.util.HashSet;
-import java.util.Set;
 
-public class Seller extends AsychroService {
+public class Order extends AsychroService {
+
     private SubscribeThread subscribeThread;
 
-    private int price;
-
-    public Seller(String role, HashSet<String> subscribeTopics){
+    public Order(String role, HashSet<String> subscribeTopics) {
         super(role);
-        if(role.charAt(role.length()-1)=='1'){
-            price = 25;
-        }
-        else {
-            price = 15;
-        }
         subscribeThread = new SubscribeThread(subscribeTopics);
         subscribeThread.run();
     }
@@ -56,21 +48,23 @@ public class Seller extends AsychroService {
                     }
 
                     public void messageArrived(String topic, MqttMessage message) throws Exception {
-
                         String interaction = topic;
-
-                        if(interaction.startsWith("Accept")){
-                            if (interaction.charAt(interaction.length()-1)==role.charAt(role.length()-1)){
-                                HashSet<String> receivers = new HashSet<>();
-                                receivers.add("Shipper");
-                                String orderInf = interaction.split("/")[0] + ": " + price;
-                                sendMessage("Order" + role.charAt(role.length()-1), receivers, orderInf);
-                            }
+                        if (interaction.startsWith("CheckOut")){
+                            HashSet<String> aims = new HashSet<>();
+                            aims.add("Catalog");
+                            sendMessage("CheckQuantity" + interaction.charAt(interaction.length()-1), aims, new String(message.getPayload()));
                         }
-                        else if(interaction.equals("interactionAsk")){
-                            HashSet<String> receivers = new HashSet<>();
-                            receivers.add("Buyer");
-                            sendMessage("Quote" + role.charAt(role.length()-1), receivers, String.valueOf(price));
+                        else if (interaction.startsWith("Not Enough")){
+                            System.out.println(role + ": " + "Not Enough:"+ new String(message.getPayload()));
+                        }
+                        else if (interaction.startsWith("Fail")){
+                            System.out.println(role + ": " + "Fail:"+ new String(message.getPayload()));
+                        }
+                        else if (interaction.startsWith("Details")){
+                            System.out.println(role + ": " + "Details:"+ new String(message.getPayload()));
+                        }
+                        else {
+                            System.out.println(role + ": " + "Invalid Message to Me:"+ new String(message.getPayload()));
                         }
                     }
 
@@ -89,6 +83,4 @@ public class Seller extends AsychroService {
             }
         }
     }
-
-
 }

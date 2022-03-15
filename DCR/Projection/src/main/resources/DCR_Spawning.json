@@ -1,0 +1,237 @@
+{
+  "events": [
+    {
+      "identity": "CheckOut1",
+      "initiator": "Basket1",
+      "action": "Checkout",
+      "receivers": ["Order"],
+      "relationship": {
+        "condition": ["CheckQuantity1"],
+        "response": ["CheckQuantity1"],
+        "exclusion": ["CheckOut1"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "CheckQuantity1",
+      "initiator": "Order",
+      "action": "CheckQuantity",
+      "receivers": ["Catalog"],
+      "relationship": {
+        "response": ["Check1"],
+        "condition": ["Check1"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Enough1",
+      "initiator": "Catalog",
+      "action": "Enough",
+      "receivers": ["Payment"],
+      "belongGroups": ["Check1"],
+      "relationship": {
+        "response": ["Pay1"],
+        "inclusion": ["Pay1"],
+        "condition": ["Pay1"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Not Enough1",
+      "initiator": "Catalog",
+      "action": "Not Enough",
+      "receivers": ["Order", "Basket1", "Payment"],
+      "belongGroups": ["Check1"],
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Successful1",
+      "initiator": "Payment",
+      "action": "Successful",
+      "receivers": ["Catalog"],
+      "belongGroups": ["Pay1"],
+      "relationship": {
+        "response": ["Details1"],
+        "inclusion": ["Details1"],
+        "condition": ["Details1"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Fail1",
+      "initiator": "Payment",
+      "action": "Fail",
+      "receivers": ["Order", "Basket1", "Catalog"],
+      "belongGroups": ["Pay1"],
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Details1",
+      "initiator": "Catalog",
+      "action": "Detail",
+      "receivers": ["Order", "Basket1"],
+      "relationship": {
+        "exclusion": ["Details1"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "CheckOut2",
+      "initiator": "Basket2",
+      "action": "Checkout",
+      "receivers": ["Order"],
+      "relationship": {
+        "condition": ["CheckQuantity2"],
+        "response": ["CheckQuantity2"],
+        "exclusion": ["CheckOut2"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "CheckQuantity2",
+      "initiator": "Order",
+      "action": "CheckQuantity",
+      "receivers": ["Catalog"],
+      "relationship": {
+        "response": ["Check2"],
+        "condition": ["Check2"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Enough2",
+      "initiator": "Catalog",
+      "action": "Enough",
+      "receivers": ["Payment"],
+      "belongGroups": ["Check2"],
+      "relationship": {
+        "response": ["Pay2"],
+        "inclusion": ["Pay2"],
+        "condition": ["Pay2"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Not Enough2",
+      "initiator": "Catalog",
+      "action": "Not Enough",
+      "receivers": ["Order", "Basket2", "Payment"],
+      "belongGroups": ["Check2"],
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Successful2",
+      "initiator": "Payment",
+      "action": "Successful",
+      "receivers": ["Catalog"],
+      "belongGroups": ["Pay2"],
+      "relationship": {
+        "response": ["Details2"],
+        "inclusion": ["Details2"],
+        "condition": ["Details2"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Fail2",
+      "initiator": "Payment",
+      "action": "Fail",
+      "receivers": ["Order", "Basket2", "Catalog"],
+      "belongGroups": ["Pay2"],
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Details2",
+      "initiator": "Catalog",
+      "action": "Detail",
+      "receivers": ["Order", "Basket2"],
+      "relationship": {
+        "exclusion": ["Details2"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    }
+  ],
+
+  "groups": [
+    {
+      "identity": "Check1",
+      "relationship": {
+        "exclusion": ["Check1"]
+      }
+    },
+    {
+      "identity": "Pay1",
+      "relationship": {
+        "exclusion": ["Pay1"]
+      }
+    },
+    {
+      "identity": "Check2",
+      "relationship": {
+        "exclusion": ["Check2"]
+      }
+    },
+    {
+      "identity": "Pay2",
+      "relationship": {
+        "exclusion": ["Pay2"]
+      }
+    }
+  ]
+}

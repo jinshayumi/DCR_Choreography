@@ -231,6 +231,16 @@ public class DCRGraph {
         return getIncludedPending().isEmpty();
     }
 
+    public HashSet<String> getSubscribe(String role) {
+        HashSet<String > res = new HashSet<>();
+        for (String event: eventsReceivers.keySet()){
+            if (eventsReceivers.get(event).contains(role)){
+                res.add(event);
+            }
+        }
+        return res;
+    }
+
 
     // getters and setters.
     public HashSet<String> getEvents() {
@@ -320,4 +330,5 @@ public class DCRGraph {
     public void setEventsReceivers(HashMap<String, HashSet<String>> eventsReceivers) {
         this.eventsReceivers = eventsReceivers;
     }
+
 }

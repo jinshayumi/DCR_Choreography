@@ -18,20 +18,23 @@ public class MQTTListener {
     public MemoryPersistence persistence = new MemoryPersistence();
 
     private SubscribeThread subscribeThread;
+    private DCRGraph dcrGraph;
 
 
-    public MQTTListener(HashMap<String, DCRGraph> dcrGraphHashMap){
+    public MQTTListener(HashMap<String, DCRGraph> dcrGraphHashMap, DCRGraph dcrGraph){
 
         this.dcrGraphHashSet = dcrGraphHashMap;
-        subscribeThread = new SubscribeThread("+/+/+");
+        this.dcrGraph = dcrGraph;
+
+        subscribeThread = new SubscribeThread(new HashSet<>(dcrGraph.getEvents()));
         subscribeThread.run();
     }
 
     private class SubscribeThread extends Thread{
-        private String topic;
+        private HashSet<String> subscribeTopics;
 
-        public SubscribeThread(String topic){
-            this.topic = topic;
+        public SubscribeThread(HashSet<String> subscribeTopics){
+            this.subscribeTopics = subscribeTopics;
         }
 
         @Override
@@ -60,22 +63,31 @@ public class MQTTListener {
 
                     public void messageArrived(String topic, MqttMessage message) throws Exception {
                         System.out.println(role + ": " + "topic:"+topic);
-                        System.out.println(role + ": " + "Qos:"+message.getQos());
                         System.out.println(role + ": " + "message content:"+ new String(message.getPayload()));
 
-                        String sender = topic.split("/")[0];
-                        String interaction = topic.split("/")[1];
-                        String receiver = topic.split("/")[2];
+                        String interaction = topic;
+                        String sender = dcrGraph.getEventsInitiator().get(topic);
 
+                        HashSet<String> receivers = dcrGraph.getEventsReceivers().get(topic);
+
+                        boolean enabled = true;
                         if (!dcrGraphHashSet.get(sender).enabled(interaction)){
                             System.out.println(interaction + " is not enabled by role " + sender);
-                        }
-                        else if (!dcrGraphHashSet.get(receiver).enabled(interaction)){
-                            System.out.println(interaction + " is not enabled by role " + sender);
+                            enabled = false;
                         }
                         else {
+                            for (String receiver: receivers){
+                                if (!dcrGraphHashSet.get(receiver).enabled(interaction)){
+                                    System.out.println(interaction + " is not enabled by role " + sender);
+                                    enabled = false;
+                                }
+                            }
+                        }
+                        if (enabled){
                             dcrGraphHashSet.get(sender).execute(interaction);
-                            dcrGraphHashSet.get(receiver).execute(interaction);
+                            for (String receiver: receivers){
+                                dcrGraphHashSet.get(receiver).execute(interaction);
+                            }
                             System.out.println("after executing interaction " + interaction + ", following end up projection is not accepted:");
                             for(String role : dcrGraphHashSet.keySet()){
                                 if(!dcrGraphHashSet.get(role).isAccepting()){
@@ -92,7 +104,9 @@ public class MQTTListener {
                 });
                 client.connect(options);
                 // subscribe.
-                client.subscribe(topic, qos);
+                for (String topic : subscribeTopics){
+                    client.subscribe(topic, qos);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
