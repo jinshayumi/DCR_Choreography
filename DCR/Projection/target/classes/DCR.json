@@ -7,8 +7,17 @@
       "receivers": ["Seller1", "Seller2"],
       "belongGroups": ["Negotiate"],
       "relationship": {
-        "condition": ["Quotes"],
-        "response": ["Quotes"]
+        "timeCondition": [
+          {
+            "to": "Quotes",
+            "time": 20
+          }
+        ],
+        "timeResponse": [
+          {
+            "to": "Quotes"
+          }
+        ]
       },
       "marking": {
         "executed": false,
@@ -23,7 +32,11 @@
       "receivers": ["Buyer"],
       "belongGroups": ["Quotes", "Negotiate"],
       "relationship": {
-        "response": ["Accept1"]
+        "timeResponse": [
+          {
+            "to": "Accept1"
+          }
+        ]
       },
       "marking": {
         "executed": false,
@@ -38,7 +51,11 @@
       "receivers": ["Buyer"],
       "belongGroups": ["Quotes", "Negotiate"],
       "relationship": {
-        "response": ["Accept2"]
+        "timeResponse": [
+          {
+            "to": "Accept2"
+          }
+        ]
       },
       "marking": {
         "executed": false,
@@ -54,7 +71,11 @@
       "belongGroups": ["Decide"],
       "relationship": {
         "inclusion": ["Order1"],
-        "response": ["Order1"]
+        "timeResponse": [
+          {
+            "to": "Order1"
+          }
+        ]
       },
       "marking": {
         "executed": false,
@@ -82,7 +103,11 @@
       "belongGroups": ["Decide"],
       "relationship": {
         "inclusion": ["Order2"],
-        "response": ["Order2"]
+        "timeResponse": [
+          {
+            "to": "Order2"
+          }
+        ]
       },
       "marking": {
         "executed": false,
@@ -140,7 +165,11 @@
     {
       "identity": "Quotes",
       "relationship": {
-        "condition": ["Decide"],
+        "timeCondition": [
+          {
+            "to": "Decide"
+          }
+        ],
         "milstone": ["Decide"]
       }
     },
@@ -157,7 +186,11 @@
       "identity": "Orders",
       "relationship": {
         "inclusion": ["ShipDetails"],
-        "response": ["ShipDetails"]
+        "timeResponse": [
+          {
+            "to": "ShipDetails"
+          }
+        ]
       }
     }
   ]

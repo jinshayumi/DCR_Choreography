@@ -3,16 +3,11 @@ import models.jsonDCR.JsonDCR;
 import modelInterface.ModelImp;
 import projectionInterface.ProjectionImp;
 import services.AsychroService;
-import services.IService;
-import services.InteractServiceImp;
 import services.MQTTListener;
-import services.roles.Buyer;
-import services.roles.Seller;
-import services.roles.Shipper;
-import services.utilities.Message;
+import services.scenario1.Buyer;
+import services.scenario1.Seller;
+import services.scenario1.Shipper;
 
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.util.*;
 
 public class DCR {

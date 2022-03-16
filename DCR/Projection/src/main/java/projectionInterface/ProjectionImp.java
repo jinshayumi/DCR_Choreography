@@ -3,6 +3,8 @@ package projectionInterface;
 import modelInterface.ModelImp;
 import models.dcrGraph.DCRGraph;
 import models.dcrGraph.DCRMarking;
+import models.jsonDCR.TimeCondition;
+import models.jsonDCR.TimeResponse;
 import sun.jvm.hotspot.debugger.win32.coff.DebugVC50SymbolEnums;
 
 import java.lang.reflect.Method;
@@ -72,7 +74,18 @@ public class ProjectionImp implements IProjection{
         // projection of condition relationship.
         HashMap<String, HashSet<String>> conditionProjectionRHS = multipleSets(conditionToSigma, sigmaSet);
         HashMap<String, HashSet<String>> conditionProjection = intersectionMap(dcrGraph.getConditionsFor(), conditionProjectionRHS);
-        res.setConditionsFor(conditionProjection);
+        HashMap<String, HashSet<TimeCondition>> timeConditionProjection = new HashMap<>();
+        for (String from: conditionProjection.keySet()){
+            HashSet<TimeCondition> temp = new HashSet<>();
+            for (TimeCondition timeCondition: dcrGraph.getTimeConditions().get(from)){
+                if (conditionProjection.get(from).contains(timeCondition.getTo())){
+                    temp.add(new TimeCondition(timeCondition));
+                }
+            }
+            timeConditionProjection.put(from, temp);
+        }
+        res.setTimeConditions(timeConditionProjection);
+//        res.setConditionsFor(conditionProjection);
 
         // projection of milestone relationship.
         HashMap<String, HashSet<String>> milestoneProjectionRHS = multipleSets(mileStoneToSigma, sigmaSet);
@@ -89,7 +102,18 @@ public class ProjectionImp implements IProjection{
         HashMap<String, HashSet<String>> multiResponseSigma = multipleSets(responseToSigma, sigmaSet);
         HashMap<String, HashSet<String>> union = unionMap(multiResponseMile, multiResponseSigma);
         HashMap<String, HashSet<String>> responseProjection = intersectionMap(dcrGraph.getResponsesTo(), union);
-        res.setResponsesTo(responseProjection);
+        HashMap<String, HashSet<TimeResponse>> timeResponseProjection = new HashMap<>();
+        for (String from: responseProjection.keySet()){
+            HashSet<TimeResponse> temp = new HashSet<>();
+            for (TimeResponse timeResponse: dcrGraph.getTimeResponses().get(from)){
+                if (responseProjection.get(from).contains(timeResponse.getTo())){
+                    temp.add(new TimeResponse(timeResponse));
+                }
+            }
+            timeResponseProjection.put(from, temp);
+        }
+        res.setTimeResponses(timeResponseProjection);
+//        res.setResponsesTo(responseProjection);
 
         // projection of inclusion relationship.
         HashSet<String> includeToSigma = getARelationship(dcrGraph, "getIncludesTo", sigmaSet);
@@ -143,8 +167,8 @@ public class ProjectionImp implements IProjection{
         res.setDcrMarking(markings);
 
         // Relationships.
-        res.setConditionsFor(new HashMap<>(sigmaProjection.getConditionsFor()));
-        res.setResponsesTo(new HashMap<>(sigmaProjection.getResponsesTo()));
+        res.setTimeConditions(new HashMap<>(sigmaProjection.getTimeConditions()));
+        res.setTimeResponses(new HashMap<>(sigmaProjection.getTimeResponses()));
         res.setMilestonesFor(new HashMap<>(sigmaProjection.getMilestonesFor()));
         res.setIncludesTo(new HashMap<>(sigmaProjection.getIncludesTo()));
         res.setExcludesTo(new HashMap<>(sigmaProjection.getExcludesTo()));

@@ -1,13 +1,9 @@
-import com.sun.org.apache.xpath.internal.operations.Or;
 import modelInterface.ModelImp;
 import models.dcrGraph.DCRGraph;
 import models.jsonDCR.JsonDCR;
 import projectionInterface.ProjectionImp;
 import services.AsychroService;
 import services.MQTTListener;
-import services.roles.Buyer;
-import services.roles.Seller;
-import services.roles.Shipper;
 import services.scenario2.Basket;
 import services.scenario2.Catalog;
 import services.scenario2.Order;
