@@ -1,6 +1,8 @@
 package models.dcrGraph;
 
 import models.jsonDCR.Event;
+import models.jsonDCR.TimeCondition;
+import models.jsonDCR.TimeResponse;
 
 import java.util.*;
 
@@ -21,11 +23,39 @@ public class DCRGraph {
     private HashMap<String, String> labelFunc = new HashMap<>();
 
     // 5 relationships.
-    private HashMap<String, HashSet<String>> conditionsFor = new HashMap<>();
     private HashMap<String, HashSet<String>> milestonesFor = new HashMap<>();
-    private HashMap<String, HashSet<String>> responsesTo = new HashMap<>();
     private HashMap<String, HashSet<String>> excludesTo = new HashMap<>();
     private HashMap<String, HashSet<String>> includesTo = new HashMap<>();
+
+    private HashMap<String, HashSet<TimeCondition>> timeConditions = new HashMap<>();
+    private HashMap<String, HashSet<TimeResponse>> timeResponses = new HashMap<>();
+
+    private  HashMap<String, Long> runTimeConditionMap = new HashMap<>();
+    private HashMap<String, Long> runTimeResponseMap = new HashMap<>();
+
+    private HashMap<String, HashSet<String>> conditionMap(){
+        HashMap<String, HashSet<String>> res = new HashMap<>();
+        for (String event: timeConditions.keySet()){
+            HashSet<String> temp = new HashSet<>();
+            for (TimeCondition condition: timeConditions.get(event)){
+                temp.add(condition.getTo());
+            }
+            res.put(event, temp);
+        }
+        return res;
+    }
+
+    private HashMap<String, HashSet<String>> responseMap(){
+        HashMap<String, HashSet<String>> res = new HashMap<>();
+        for (String event: timeResponses.keySet()){
+            HashSet<String> temp = new HashSet<>();
+            for (TimeResponse response: timeResponses.get(event)){
+                temp.add(response.getTo());
+            }
+            res.put(event, temp);
+        }
+        return res;
+    }
 
     public HashSet<String> getOnesDependency(String participant) {
         HashSet<String> res = new HashSet<>();
@@ -60,6 +90,10 @@ public class DCRGraph {
         if (milestonesFor.containsKey(identity)&&milestonesFor.get(identity).contains(identity1)){
             return true;
         }
+
+        HashMap<String, HashSet<String>> conditionsFor = conditionMap();
+        HashMap<String, HashSet<String>> responsesTo = responseMap();
+
         if (conditionsFor.containsKey(identity)&&conditionsFor.get(identity).contains(identity1)){
             return true;
         }
@@ -83,6 +117,7 @@ public class DCRGraph {
     }
 
     private boolean ConditionOrMilestone(String e, String identity) {
+        HashMap<String, HashSet<String>> conditionsFor = conditionMap();
         if (conditionsFor.containsKey(e)&&conditionsFor.get(e).contains(identity)){
             return true;
         }
@@ -134,6 +169,7 @@ public class DCRGraph {
     private HashSet<String> findResponse(String e) {
         HashSet<String> res = new HashSet<>();
         for (String event:events){
+            HashMap<String, HashSet<String>> responsesTo = responseMap();
             if (responsesTo.containsKey(event)&&responsesTo.get(event).contains(e)){
                 res.add(event);
             }
@@ -162,7 +198,9 @@ public class DCRGraph {
         }
 
         try {
+            // conditions that are in
             final Set<String> inccon = new HashSet<>();
+            HashMap<String, HashSet<String>> conditionsFor = conditionMap();
             for (String con: conditionsFor.keySet()){
                 if (conditionsFor.get(con).contains(event)){
                     inccon.add(con);
@@ -172,6 +210,7 @@ public class DCRGraph {
             if(!dcrMarking.executed.containsAll(inccon)){
                 return false;
             }
+
         }
         catch (Exception e){
             throw e;
@@ -194,6 +233,16 @@ public class DCRGraph {
             throw e;
         }
 
+        // be enabled if now the time is greater than the condition time.
+        if (runTimeConditionMap.containsKey(event) && System.currentTimeMillis()/1000<=runTimeConditionMap.get(event)){
+            return false;
+        }
+
+        // no later than the deadline.
+        if (runTimeResponseMap.containsKey(event)&&System.currentTimeMillis()/1000> runTimeResponseMap.get(event)){
+            return false;
+        }
+
         return true;
     }
 
@@ -208,6 +257,8 @@ public class DCRGraph {
         }
         dcrMarking.executed.add(event);
         dcrMarking.pending.remove(event);
+        HashMap<String, HashSet<String>> responsesTo = responseMap();
+
         if (responsesTo.containsKey(event)){
             dcrMarking.pending.addAll(responsesTo.get(event));
         }
@@ -216,6 +267,35 @@ public class DCRGraph {
         }
         if (includesTo.containsKey(event)){
             dcrMarking.included.addAll(includesTo.get(event));
+        }
+
+        // condition Time.
+        if (timeConditions.containsKey(event)){
+            for (TimeCondition timeCondition: timeConditions.get(event)){
+                if (timeCondition.getTime()!=0){
+                    Long condTime = System.currentTimeMillis()/1000+timeCondition.getTime();
+                    if (!runTimeConditionMap.containsKey(timeCondition.getTo())) runTimeConditionMap.
+                            put(timeCondition.getTo(), condTime);
+                    else {
+                        runTimeConditionMap.put(timeCondition.getTo(), Math.max(condTime, timeCondition.getTime()));
+                    }
+                }
+            }
+        }
+
+        // deadline.
+        if (timeResponses.containsKey(event)){
+            for (TimeResponse timeResponse: timeResponses.get(event)){
+                if (timeResponse.getTime()!=-1){
+                    Long condTime = System.currentTimeMillis()/1000+timeResponse.getTime();
+                    if (!runTimeResponseMap.containsKey(timeResponse.getTo()))
+                        runTimeResponseMap.put(timeResponse.getTo(), condTime);
+                    else {
+                        runTimeResponseMap.put(timeResponse.getTo(), Math.min(condTime, timeResponse.getTime()));
+                    }
+                }
+            }
+
         }
         return;
     }
@@ -276,12 +356,10 @@ public class DCRGraph {
     }
 
     public HashMap<String, HashSet<String>> getConditionsFor() {
+        HashMap<String, HashSet<String>> conditionsFor = conditionMap();
         return conditionsFor;
     }
 
-    public void setConditionsFor(HashMap<String, HashSet<String>> conditionsFor) {
-        this.conditionsFor = conditionsFor;
-    }
 
     public HashMap<String, HashSet<String>> getMilestonesFor() {
         return milestonesFor;
@@ -292,11 +370,8 @@ public class DCRGraph {
     }
 
     public HashMap<String, HashSet<String>> getResponsesTo() {
+        HashMap<String, HashSet<String>> responsesTo = responseMap();
         return responsesTo;
-    }
-
-    public void setResponsesTo(HashMap<String, HashSet<String>> responsesTo) {
-        this.responsesTo = responsesTo;
     }
 
     public HashMap<String, HashSet<String>> getExcludesTo() {
@@ -331,4 +406,19 @@ public class DCRGraph {
         this.eventsReceivers = eventsReceivers;
     }
 
+    public HashMap<String, HashSet<TimeCondition>> getTimeConditions() {
+        return timeConditions;
+    }
+
+    public void setTimeConditions(HashMap<String, HashSet<TimeCondition>> timeConditions) {
+        this.timeConditions = timeConditions;
+    }
+
+    public HashMap<String, HashSet<TimeResponse>> getTimeResponses() {
+        return timeResponses;
+    }
+
+    public void setTimeResponses(HashMap<String, HashSet<TimeResponse>> timeResponses) {
+        this.timeResponses = timeResponses;
+    }
 }

@@ -1,11 +1,8 @@
 package services;
 
-import models.dcrGraph.DCRGraph;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
-import services.roles.Buyer;
 
-import java.util.HashMap;
 import java.util.Set;
 
 public class AsychroService {
@@ -17,9 +14,13 @@ public class AsychroService {
 
     public String role;
 
+//    public T data;
+
     public AsychroService(String role){
         this.role = role;
     }
+
+//    public abstract boolean dataSatisfy();
 
     public void sendMessage(String interaction, Set<String> aims, String payload){
         try {
