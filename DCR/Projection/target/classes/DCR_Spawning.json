@@ -6,8 +6,16 @@
       "action": "Checkout",
       "receivers": ["Order"],
       "relationship": {
-        "condition": ["CheckQuantity1"],
-        "response": ["CheckQuantity1"],
+        "timeCondition": [
+          {
+            "to": "CheckQuantity1"
+          }
+        ],
+        "timeResponse": [
+          {
+            "to": "CheckQuantity1"
+          }
+        ],
         "exclusion": ["CheckOut1"]
       },
       "marking": {
@@ -22,8 +30,16 @@
       "action": "CheckQuantity",
       "receivers": ["Catalog"],
       "relationship": {
-        "response": ["Check1"],
-        "condition": ["Check1"]
+        "timeResponse": [
+          {
+            "to": "Check1"
+          }
+        ],
+        "timeCondition": [
+          {
+            "to": "Check1"
+          }
+        ]
       },
       "marking": {
         "executed": false,
@@ -38,9 +54,17 @@
       "receivers": ["Payment"],
       "belongGroups": ["Check1"],
       "relationship": {
-        "response": ["Pay1"],
+        "timeResponse": [
+          {
+            "to": "Pay1"
+          }
+        ],
         "inclusion": ["Pay1"],
-        "condition": ["Pay1"]
+        "timeCondition": [
+          {
+            "to": "Pay1"
+          }
+        ]
       },
       "marking": {
         "executed": false,
@@ -67,9 +91,17 @@
       "receivers": ["Catalog"],
       "belongGroups": ["Pay1"],
       "relationship": {
-        "response": ["Details1"],
+        "timeResponse": [
+          {
+            "to": "Details1"
+          }
+        ],
         "inclusion": ["Details1"],
-        "condition": ["Details1"]
+        "timeCondition": [
+          {
+            "to": "Details1"
+          }
+        ]
       },
       "marking": {
         "executed": false,
@@ -109,8 +141,16 @@
       "action": "Checkout",
       "receivers": ["Order"],
       "relationship": {
-        "condition": ["CheckQuantity2"],
-        "response": ["CheckQuantity2"],
+        "timeCondition": [
+          {
+            "to": "CheckQuantity2"
+          }
+        ],
+        "timeResponse": [
+          {
+            "to": "CheckQuantity2"
+          }
+        ],
         "exclusion": ["CheckOut2"]
       },
       "marking": {
@@ -125,8 +165,16 @@
       "action": "CheckQuantity",
       "receivers": ["Catalog"],
       "relationship": {
-        "response": ["Check2"],
-        "condition": ["Check2"]
+        "timeResponse": [
+          {
+            "to": "Check2"
+          }
+        ],
+        "timeCondition": [
+          {
+            "to": "Check2"
+          }
+        ]
       },
       "marking": {
         "executed": false,
@@ -141,9 +189,17 @@
       "receivers": ["Payment"],
       "belongGroups": ["Check2"],
       "relationship": {
-        "response": ["Pay2"],
+        "timeResponse": [
+          {
+            "to": "Pay2"
+          }
+        ],
         "inclusion": ["Pay2"],
-        "condition": ["Pay2"]
+        "timeCondition": [
+          {
+            "to": "Pay2"
+          }
+        ]
       },
       "marking": {
         "executed": false,
@@ -170,9 +226,17 @@
       "receivers": ["Catalog"],
       "belongGroups": ["Pay2"],
       "relationship": {
-        "response": ["Details2"],
+        "timeResponse": [
+          {
+            "to": "Details2"
+          }
+        ],
         "inclusion": ["Details2"],
-        "condition": ["Details2"]
+        "timeCondition": [
+          {
+            "to": "Details2"
+          }
+        ]
       },
       "marking": {
         "executed": false,
