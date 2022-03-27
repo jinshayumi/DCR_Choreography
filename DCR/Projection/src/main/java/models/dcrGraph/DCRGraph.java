@@ -3,6 +3,7 @@ package models.dcrGraph;
 import models.jsonDCR.Event;
 import models.jsonDCR.TimeCondition;
 import models.jsonDCR.TimeResponse;
+import sun.util.resources.cldr.zh.CalendarData_zh_Hans_HK;
 
 import java.util.*;
 
@@ -389,6 +390,144 @@ public class DCRGraph {
         }
         return res;
     }
+
+    // functions below generate the approximation for locks.
+    private HashSet<String> getBusyEvents(){
+        HashSet<String> res = new HashSet<>();
+
+        // the events whose initial states are pending.
+        for (String s: dcrMarking.pending){
+            res.add(s);
+        }
+        // events response to.
+        for (String from: getResponsesTo().keySet()){
+            res.addAll(getResponsesTo().get(from));
+        }
+        return res;
+    }
+
+
+    // deadlock checking.
+    private boolean deadlock = false;
+    public boolean checkDeadLock(){
+        HashSet<String> possiblePending = getBusyEvents();
+
+        for (String possible : possiblePending){
+            HashSet<String> traversed = new HashSet<>();
+            dfsCheckDeadLock(possible, traversed);
+        }
+        return deadlock;
+    }
+
+    private void dfsCheckDeadLock(String temp, HashSet<String> headEvent){
+        if (headEvent.contains(temp)){
+            changeDeadLock();
+            return;
+        }
+        else{
+            HashSet<String> possibles = new HashSet<>();
+            possibles.addAll(getConditionsFor().get(temp));
+            possibles.addAll(getMilestonesFor().get(temp));
+            for (String possible: possibles){
+                headEvent.add(temp);
+                dfsCheckDeadLock(possible, headEvent);
+                headEvent.remove(temp);
+            }
+        }
+    }
+
+    private void changeDeadLock(){
+        if (!deadlock){
+            deadlock = true;
+        }
+    }
+    // end of deadlock part.
+
+    private HashSet<String> inhibitors = new HashSet<>();
+    public boolean checkTimeLock(){
+        HashSet<String> busyEvents = getBusyEvents();
+        // 1. acyclic.
+        if (checkDeadLock()){
+            return true;
+        }
+
+        // 2. if e o-> f or e ->+ f, there is a path from e to f.
+        for (String busy : busyEvents){
+            //
+            dfsInhibitors(busy);
+            for (String key: getResponsesTo().keySet()){
+                for (String val: getResponsesTo().get(key)){
+                    if (inhibitors.contains(key)&&inhibitors.contains(val)){
+                        if (!havePath(key, val)){
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            for (String key: getIncludesTo().keySet()){
+                for (String val: getResponsesTo().get(key)){
+                    if (inhibitors.contains(key)&&inhibitors.contains(val)){
+                        if (!havePath(key, val)){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 3. if e ->o f with time k, then k = 0.
+        for (String key: getTimeConditions().keySet()){
+            for (TimeCondition tc: getTimeConditions().get(key)){
+                if (inhibitors.contains(key)&&inhibitors.contains(tc.getTo())){
+                    if (tc.getTime()!= 0){
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean havePath(String from, String to){
+        HashSet<String> reachable = new HashSet<>();
+        HashSet<String> oneReachable =  dfsOneReachable(from, reachable);
+        if (oneReachable.contains(to)){
+            return true;
+        }
+        else return false;
+    }
+
+    private HashSet<String> dfsOneReachable(String from, HashSet<String> reachable) {
+        reachable.add(from);
+        HashSet<String> temp = new HashSet<>();
+        if (getConditionsFor().containsKey(from)){
+            for (String val: getConditionsFor().get(from)){
+                dfsOneReachable(val, reachable);
+            }
+        }
+        return reachable;
+    }
+
+    private void dfsInhibitors(String busy){
+        inhibitors.add(busy);
+        HashSet<String> temp = new HashSet<>();
+        for (String key: getConditionsFor().keySet()){
+            if(getConditionsFor().get(key).contains(busy)){
+                temp.add(key);
+            }
+        }
+        for (String key: getMilestonesFor().keySet()){
+            if(getConditionsFor().get(key).contains(busy)){
+                temp.add(key);
+            }
+        }
+        for (String oneInhibitor: temp){
+            dfsInhibitors(oneInhibitor);
+        }
+    }
+
 
     // getters and setters.
     public HashSet<String> getEvents() {

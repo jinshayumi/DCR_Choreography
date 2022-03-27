@@ -21,6 +21,8 @@ public class Time {
         // Transfer to DCR graph
         DCRGraph dcrGraph = modelImp.transferToDCRGraph(jsonDCR);
 
+        System.out.println("dead lock approximation: " +dcrGraph.checkDeadLock());
+
         HashSet<String> roles = new HashSet<>();
         roles.add("Buyer");
         roles.add("Seller1");
