@@ -9,7 +9,8 @@ public class BoolData extends Data{
     }
 
     @Override
-    public Object getData() {
+    public Boolean getData() {
         return data;
     }
+
 }

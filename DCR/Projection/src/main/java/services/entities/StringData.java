@@ -9,7 +9,7 @@ public class StringData extends Data{
     }
 
     @Override
-    public Object getData() {
-        return null;
+    public String getData() {
+        return data;
     }
 }

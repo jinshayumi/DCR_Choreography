@@ -33,9 +33,6 @@
           {
             "to": "Timeout",
             "time": 7000
-          },
-          {
-            "to": "Handle quotes"
           }
         ],
         "inclusion": ["Handle quotes"]
@@ -58,7 +55,7 @@
       "marking": {
         "executed": false,
         "pending": false,
-        "included": true
+        "included": false
       }
     },
     {
@@ -73,7 +70,7 @@
       "marking": {
         "executed": false,
         "pending": false,
-        "included": true
+        "included": false
       }
     },
     {
@@ -89,14 +86,14 @@
       "marking": {
         "executed": false,
         "pending": false,
-        "included": true
+        "included": false
       }
     },
     {
       "identity": "Input decision",
       "initiator": "Buyer",
       "action": "Input decision",
-      "receivers": ["Seller1", "Seller2"],
+      "receivers": [],
       "belongGroups": ["Handle quotes"],
       "relationship": {
         "exclusion": ["Input decision", "Ask for Quote"],
@@ -119,7 +116,7 @@
       "marking": {
         "executed": false,
         "pending": false,
-        "included": true
+        "included": false
       }
     },
     {
