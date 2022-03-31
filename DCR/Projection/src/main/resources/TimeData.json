@@ -1,0 +1,180 @@
+{
+  "events": [
+    {
+      "identity": "Timeout",
+      "initiator": "Buyer",
+      "action": "Timeout",
+      "receivers": ["Seller1", "Seller2"],
+      "relationship": {
+        "exclusion": ["Get quotes"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Ask for Quote",
+      "initiator": "Buyer",
+      "action": "Ask for Quote",
+      "receivers": ["Seller1", "Seller2"],
+      "relationship": {
+        "timeResponse": [
+          {
+            "to": "Timeout",
+            "time": 7000
+          },
+          {
+            "to": "Handle quotes"
+          }
+        ],
+        "timeCondition": [
+          {
+            "to": "Timeout",
+            "time": 7000
+          }
+        ],
+        "inclusion": ["Handle quotes"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Quote1",
+      "initiator": "Seller1",
+      "action": "Quote",
+      "receivers": ["Buyer"],
+      "belongGroups": ["Get quotes", "Handle quotes"],
+      "relationship": {
+        "exclusion": ["Quote1"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Quote2",
+      "initiator": "Seller2",
+      "action": "Quote",
+      "receivers": ["Buyer"],
+      "belongGroups": ["Get quotes", "Handle quotes"],
+      "relationship": {
+        "exclusion": ["Quote2"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Output replies",
+      "initiator": "Buyer",
+      "action": "Output replies",
+      "receivers": [],
+      "belongGroups": ["Handle quotes"],
+      "relationship": {
+        "exclusion": ["Output replies"],
+        "milstone":["Input decision"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Input decision",
+      "initiator": "Buyer",
+      "action": "Input decision",
+      "receivers": [],
+      "belongGroups": ["Handle quotes"],
+      "relationship": {
+        "exclusion": ["Input decision", "Ask for Quote"],
+        "timeResponse": [
+          {
+            "to": "Ask for Quote"
+          },
+          {
+            "to": "Accept1"
+          },
+          {
+            "to": "Accept2"
+          },
+          {
+            "to": "Reject"
+          }
+        ],
+        "inclusion": ["Accept1", "Accept2", "Reject"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Accept1",
+      "initiator": "Buyer",
+      "action": "Accept",
+      "receivers": ["Seller1"],
+      "relationship": {
+        "exclusion": ["Accept1"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Accept2",
+      "initiator": "Buyer",
+      "action": "Accept",
+      "receivers": ["Seller2"],
+      "relationship": {
+        "exclusion": ["Accept2"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Reject",
+      "initiator": "Buyer",
+      "action": "Reject",
+      "receivers": ["Seller1", "Seller2"],
+      "relationship": {
+        "exclusion": ["Reject"]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    }
+  ],
+
+  "groups": [
+    {
+      "identity": "Handle quotes",
+      "relationship": {
+        "milstone": ["Ask for Quote"]
+      }
+    },
+    {
+      "identity": "Get quotes",
+      "relationship": {
+        "milstone": ["Output replies"]
+      }
+    }
+  ]
+}
