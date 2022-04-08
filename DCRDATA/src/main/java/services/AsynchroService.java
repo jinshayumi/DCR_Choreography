@@ -1,17 +1,22 @@
 package services;
 
 import models.dcrGraph.DCRGraph;
+import models.parser.ExpParser;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import services.entities.Data;
+import services.entities.VoidData;
 
+import javax.swing.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Scanner;
 
 /**
  * This is the base class that each end point should inherit.
@@ -36,16 +41,41 @@ public class AsynchroService {
         this.dcrGraph = dcrGraph;
     }
 
-    public void handleMessage(String event)
+    public void execute(String event){
+        sendMessage(event);
+    }
+
+    /**
+     * When receiving a message, the event is always enabled in theory.
+     * If the interaction carries some data(payload is not void),
+     * the data should be updated in data map in DCR graph..*/
+    public void handleMessage(String event, Data data)
             throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         if (!dcrGraph.enabled(event)){
-            System.out.println(role +": " + event + " is not enabled");
+            System.out.println(role +": " + event + " is not enabled (receiving side)");
+            return;
         }
         else {
+            // if this event contains some data, update the data.
+            if (!dcrGraph.getDataLogicMap().get(event).getType().equals("")){
+                dcrGraph.updateEventData(event, data);
+            }
+            // execute the event in the dcr graph.
             dcrGraph.execute(event);
+            System.out.println(role + ": " + "after handling "+ event
+                    +", "
+                    + "pending events are:"
+                    + dcrGraph.getIncludedPending().toString());
         }
     }
 
+    /**
+     * When sending a message, it means that there is an interaction
+     * and the sender is the initiator for the interaction.
+     * The steps are:
+     * 1. if it is enabled?
+     * 2. execute the event in local EPP choreography.
+     * 3. send the calculated data to the receivers via publishing topic(topic name is the interaction's name)*/
     public void sendMessage(String interaction){
         try {
             // create client.
@@ -60,10 +90,38 @@ public class AsynchroService {
             // connect.
             sampleClient.connect(connOpts);
 
+            if (!dcrGraph.enabled(interaction)){
+                System.out.println(role +": " + interaction + " is not enabled (sending side)");
+                return;
+            }
+            // if this event is not an input event or of type void.
+            if((!dcrGraph.getDataLogicMap().get(interaction).getType().equals(""))
+                    &&(!dcrGraph.getDataLogicMap().get(interaction).getType().equals("?"))){
+                dcrGraph.calculateAnEvent(interaction);
+            }
+            if (dcrGraph.getDataLogicMap().get(interaction).getType().equals("?")){
+                System.out.println("Input for event " + interaction);
+                Scanner sc = new Scanner( System.in );
+                String input = sc.nextLine();
+                dcrGraph.updateEventData(interaction,
+                        ExpParser.calculate(dcrGraph.getDataMap(), ExpParser.parseExp(input)));
+            }
+            dcrGraph.execute(interaction);
+            System.out.println(role + ": after sending " + interaction + ", " + "pending events are: " +
+                    dcrGraph.getIncludedPending().toString());
+
+            byte[] serializedData;
+            if ((!dcrGraph.getDataLogicMap().get(interaction).getType().equals(""))){
+                Data dataToSend = dcrGraph.getDataMap().get(interaction);
+                serializedData = serialize(dataToSend);
+            }
+            else {
+                Data dataToSend = new VoidData("void");
+                serializedData = serialize(dataToSend);
+            }
+
             // message serialization.
-//            byte[] bytes = serialize(calculate(interaction));
-//            handleMessage(interaction, calculate(interaction));
-            MqttMessage message = new MqttMessage(new byte[5]);
+            MqttMessage message = new MqttMessage(serializedData);
 
             // qos.
             message.setQos(qos);
@@ -80,9 +138,19 @@ public class AsynchroService {
             System.out.println("cause " + me.getCause());
             System.out.println("excep " + me);
             me.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
     }
 
+
+    // help function to serialize an object to byte[].
     public static byte[] serialize(Object object) {
         ObjectOutputStream oos = null;
         ByteArrayOutputStream baos = null;

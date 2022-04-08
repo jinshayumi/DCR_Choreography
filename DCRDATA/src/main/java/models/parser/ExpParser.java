@@ -133,7 +133,7 @@ public class ExpParser {
     public static HashSet<String> getEventsInExpression(Expression expression) {
         if (expression.isNameExpr()){
             HashSet<String> res = new HashSet<>();
-            res.add(expression.toString().replace('_', ' '));
+            res.add(expression.toString());
             return res;
         }
         else if (expression.isBooleanLiteralExpr()

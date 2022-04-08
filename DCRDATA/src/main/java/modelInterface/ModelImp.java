@@ -34,7 +34,8 @@ public class ModelImp implements ModelInterface {
 
     @Override
     public DCRGraph transferToDCRGraph(JsonDCR jsonDCR)
-            throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
+            throws ClassNotFoundException, NoSuchMethodException,
+            InvocationTargetException, IllegalAccessException, InstantiationException {
         HashSet<String> groupNames = new HashSet<>();
         // Initiate all the group names.
         for (Group group: jsonDCR.getGroups()){
@@ -78,11 +79,16 @@ public class ModelImp implements ModelInterface {
         // add all the groups' relationships.
         for (Group group: jsonDCR.getGroups()){
             HashSet<String> eventsFrom = getEventsByGroupName(group.getIdentity(), jsonDCR);
-            addGroupRelationship(dcrGraph.getTimeInclusions(), "TimeInclusion", group, eventsFrom, groupNames, jsonDCR);
-            addGroupRelationship(dcrGraph.getTimeMilestones(), "TimeMilestone", group, eventsFrom, groupNames, jsonDCR);
-            addGroupRelationship(dcrGraph.getTimeExclusions(), "TimeExclusion", group, eventsFrom, groupNames, jsonDCR);
-            addGroupRelationship(dcrGraph.getTimeConditions(), "TimeCondition", group, eventsFrom, groupNames, jsonDCR);
-            addGroupRelationship(dcrGraph.getTimeResponses(), "TimeResponse", group, eventsFrom, groupNames, jsonDCR);
+            addGroupRelationship(dcrGraph.getTimeInclusions(), "TimeInclusion", group,
+                    eventsFrom, groupNames, jsonDCR);
+            addGroupRelationship(dcrGraph.getTimeMilestones(), "TimeMilestone", group,
+                    eventsFrom, groupNames, jsonDCR);
+            addGroupRelationship(dcrGraph.getTimeExclusions(), "TimeExclusion", group,
+                    eventsFrom, groupNames, jsonDCR);
+            addGroupRelationship(dcrGraph.getTimeConditions(), "TimeCondition", group,
+                    eventsFrom, groupNames, jsonDCR);
+            addGroupRelationship(dcrGraph.getTimeResponses(), "TimeResponse", group,
+                    eventsFrom, groupNames, jsonDCR);
         }
         return dcrGraph;
     }
@@ -127,12 +133,17 @@ public class ModelImp implements ModelInterface {
     }
 
     private HashSet<String> getOnesDependency(DCRGraph dcrGraph, String event)
-            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+            throws ClassNotFoundException, InvocationTargetException,
+            NoSuchMethodException, IllegalAccessException {
         return dcrGraph.getOnesDependency(event);
     }
 
 
-    private <T> void addGroupRelationship(HashMap<String, HashSet<T>> relationMap, String aimRelation, Group group, HashSet<String> eventsFrom, HashSet<String> groupNames, JsonDCR jsonDCR) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
+    private <T> void addGroupRelationship
+            (HashMap<String, HashSet<T>> relationMap, String aimRelation,
+             Group group, HashSet<String> eventsFrom, HashSet<String> groupNames, JsonDCR jsonDCR)
+            throws ClassNotFoundException, NoSuchMethodException,
+            InvocationTargetException, IllegalAccessException, InstantiationException {
         Class<?> clazz = Class.forName("models.jsonDCR.Relationship");
         Method method = clazz.getMethod("get"+aimRelation);
         ArrayList<T> eventList = (ArrayList<T>) method.invoke(group.getRelationship());
@@ -167,8 +178,11 @@ public class ModelImp implements ModelInterface {
 
     }
 
-    private <T> void addRelationship(HashSet<String> groupNames, HashMap<String, HashSet<T>> relationMap, Event event, String aimRelation, JsonDCR jsonDCR)
-            throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
+    private <T> void addRelationship
+            (HashSet<String> groupNames, HashMap<String, HashSet<T>> relationMap,
+             Event event, String aimRelation, JsonDCR jsonDCR)
+            throws ClassNotFoundException, NoSuchMethodException,
+            InvocationTargetException, IllegalAccessException, InstantiationException {
         relationMap.put(event.getIdentity(), new HashSet<>());
         Class<?> clazz = Class.forName("models.jsonDCR.Relationship");
         // getTimeInclusion.

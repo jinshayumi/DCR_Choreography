@@ -25,6 +25,7 @@ public class DCRGraph {
     // E: events
     protected HashSet<String> events = new HashSet<>();
 
+    // maps to record the initiator and the receivers for an interaction.
     private HashMap<String, String> eventsInitiator = new HashMap<>();
     private HashMap<String, HashSet<String>> eventsReceivers = new HashMap<>();
 
@@ -51,7 +52,15 @@ public class DCRGraph {
 
     // A map to store the data in each event.
     private HashMap<String, Data> dataMap = new HashMap<>();
+
+    // A map to store the data calculation logic for each event.
     private HashMap<String, EventData> dataLogicMap = new HashMap<>();
+
+//    public DCRGraph(){
+//        for (String event:events){
+//            dataMap.put(event, new Data())
+//        }
+//    }
 
     public <T> HashMap<String, HashSet<String>> getOneMap(String relation)
             throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, ClassNotFoundException {
@@ -230,6 +239,12 @@ public class DCRGraph {
         }
 
         if (!dcrMarking.included.contains(event)){
+            // find some events chain to make this event included.
+//            for (String key: getOneMap("TimeInclusion").keySet()){
+//                if (getOneMap("TimeInclusion").get(key).contains(event)){
+//
+//                }
+//            }
             return false;
         }
 
@@ -237,9 +252,9 @@ public class DCRGraph {
             // conditions: events which should be executed.
             final HashSet<String> inccon = findSatisfyCondition(event);
 
-
             inccon.retainAll(dcrMarking.included);
             if(!dcrMarking.executed.containsAll(inccon)){
+                // find some events chain to make the condition event executed.
                 return false;
             }
         }
@@ -263,13 +278,13 @@ public class DCRGraph {
 
 //         be enabled if now the time is greater than the condition time.
         if (runTimeConditionMap.containsKey(event) && System.currentTimeMillis()<=runTimeConditionMap.get(event)){
-            System.out.println("run time condition not enabled!");
+            System.out.println("run time Condition not enabled! (Too Early)");
             return false;
         }
 
         // no later than the deadline.
         if (runTimeResponseMap.containsKey(event)&&System.currentTimeMillis()> runTimeResponseMap.get(event)){
-            System.out.println("run time response not enabled!");
+            System.out.println("run time Response not enabled! (Too Late)");
             return false;
         }
 
@@ -362,11 +377,11 @@ public class DCRGraph {
         if (timeResponses.containsKey(event)){
             for (TimeResponse timeResponse: timeResponses.get(event)){
                 if (satisfy(timeResponse.getCondition()) && timeResponse.getTime()!=0){
-                    Long condTime = System.currentTimeMillis()+timeResponse.getTime();
+                    Long responseTime = System.currentTimeMillis()+timeResponse.getTime();
                     if (!runTimeResponseMap.containsKey(timeResponse.getTo()))
-                        runTimeResponseMap.put(timeResponse.getTo(), condTime);
+                        runTimeResponseMap.put(timeResponse.getTo(), responseTime);
                     else {
-                        runTimeResponseMap.put(timeResponse.getTo(), Math.min(condTime, timeResponse.getTime()));
+                        runTimeResponseMap.put(timeResponse.getTo(), Math.min(responseTime, timeResponse.getTime()));
                     }
                 }
             }
@@ -540,7 +555,16 @@ public class DCRGraph {
         }
     }
 
+    // calculate and update.
+    public void calculateAnEvent(String event){
+        Data data = ExpParser.calculate(dataMap, ExpParser.parseExp(dataLogicMap.get(event).getLogic()));
+        updateEventData(event, data);
+    }
 
+    // only update.
+    public void updateEventData(String event, Data data){
+        dataMap.put(event, data);
+    }
 
 
     // getters and setters.
@@ -649,10 +673,11 @@ public class DCRGraph {
         this.dataLogicMap = dataLogicMap;
     }
 
-    // this function checks that
-    // if all the events in the guards contains the initiator.
-    // According to the third property in Definition 15.
+
     /**
+     * this function checks that
+     *      if all the events in the guards contains the initiator.
+     *      According to the third property in Definition 15.
      * ToDo: the implementation now contains
      * duplicate code for five relationships.*/
     public boolean checkGuardEvents() {

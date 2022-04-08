@@ -3,6 +3,7 @@ package projectionInterface;
 import modelInterface.ModelImp;
 import models.dcrGraph.DCRGraph;
 import models.dcrGraph.DCRMarking;
+import models.jsonDCR.EventData;
 import models.jsonDCR.timeRelationship.*;
 import projectionInterface.IProjection;
 
@@ -12,12 +13,18 @@ import java.util.HashSet;
 
 public class ProjectionImp implements IProjection {
 
+    /**
+     * This function calculates a role's sigma set
+     * which is the events whose initiators are this role.*/
     @Override
     public HashSet<String> getARolesSigma(DCRGraph dcrGraph, String role) {
         return ModelImp.getARolesInteractions(dcrGraph, role);
     }
 
     @Override
+    /**
+     * According to Definition 16 in the paper,
+     * generate the sigma projection of a set of events. */
     public DCRGraph sigmaProjection(DCRGraph dcrGraph, HashSet<String> sigmaSet) throws Exception {
         // the result DCR graph.
         DCRGraph res = new DCRGraph();
@@ -71,7 +78,8 @@ public class ProjectionImp implements IProjection {
 
         // projection of condition relationship.
         HashMap<String, HashSet<String>> conditionProjectionRHS = multipleSets(conditionToSigma, sigmaSet);
-        HashMap<String, HashSet<String>> conditionProjection = intersectionMap(dcrGraph.getOneMap("TimeCondition"), conditionProjectionRHS);
+        HashMap<String, HashSet<String>> conditionProjection =
+                intersectionMap(dcrGraph.getOneMap("TimeCondition"), conditionProjectionRHS);
         HashMap<String, HashSet<TimeCondition>> timeConditionProjection = new HashMap<>();
         for (String from: conditionProjection.keySet()){
             HashSet<TimeCondition> temp = new HashSet<>();
@@ -110,7 +118,8 @@ public class ProjectionImp implements IProjection {
         // (•→δ)×δ)
         HashMap<String, HashSet<String>> multiResponseSigma = multipleSets(responseToSigma, sigmaSet);
         HashMap<String, HashSet<String>> union = unionMap(multiResponseMile, multiResponseSigma);
-        HashMap<String, HashSet<String>> responseProjection = intersectionMap(dcrGraph.getOneMap("TimeResponse"), union);
+        HashMap<String, HashSet<String>> responseProjection =
+                intersectionMap(dcrGraph.getOneMap("TimeResponse"), union);
         HashMap<String, HashSet<TimeResponse>> timeResponseProjection = new HashMap<>();
         for (String from: responseProjection.keySet()){
             HashSet<TimeResponse> temp = new HashSet<>();
@@ -155,7 +164,8 @@ public class ProjectionImp implements IProjection {
         HashMap<String, HashSet<String>> emulti2 = multipleSets(excludeMile, mileStoneToSigma);
         HashMap<String, HashSet<String>> emulti3 = multipleSets(excludeToSigma, sigmaSet);
         HashMap<String, HashSet<String>> eunions = unionMap(unionMap(emulti1, emulti2), emulti3);
-        HashMap<String, HashSet<String>> excludeProjection = intersectionMap(dcrGraph.getOneMap("TimeExclusion"), eunions);
+        HashMap<String, HashSet<String>> excludeProjection =
+                intersectionMap(dcrGraph.getOneMap("TimeExclusion"), eunions);
 
         HashMap<String, HashSet<TimeExclusion>> timeExclusionProjection = new HashMap<>();
         for (String from: excludeProjection.keySet()){
@@ -172,6 +182,9 @@ public class ProjectionImp implements IProjection {
         return res;
     }
 
+    /**
+     * According to Definition 17,
+     * generate the end up projection for one role.*/
     @Override
     public DCRGraph endUpProjection(final DCRGraph choreography, final DCRGraph sigmaProjection, String role) {
         DCRGraph res = new DCRGraph();
@@ -189,6 +202,13 @@ public class ProjectionImp implements IProjection {
         HashSet <String> events = new HashSet<>(eventsPrime);
         events.addAll(sigmaProjection.getEvents());
         res.setEvents(events);
+
+        // The projection to the events' logic.
+        HashMap<String, EventData> logicMap = new HashMap<>();
+        for (String containedEvent: events){
+            logicMap.put(containedEvent, new EventData(choreography.getDataLogicMap().get(containedEvent)));
+        }
+        res.setDataLogicMap(logicMap);
 
         // M U M'
         DCRMarking markings = new DCRMarking();
@@ -208,6 +228,13 @@ public class ProjectionImp implements IProjection {
         return res;
     }
 
+    /**
+     * an interface to calculate the projection for one role.
+     * 1. get this role's sigma set.
+     * 2. generate the sigma projection for the sigma set.
+     * 3. generate the end up projection for this role, using the sigma set
+     * and the original graph.
+     * 4. Initiate the initiators and receivers for each events.*/
     @Override
     public DCRGraph Process(DCRGraph choreography, String role) throws Exception {
         HashSet<String> sigmaSet = getARolesSigma(choreography, role);
@@ -232,7 +259,6 @@ public class ProjectionImp implements IProjection {
         }
         return roleEndUpProjection;
     }
-
 
     //functions for get a role's end-up projection.
     private HashSet<String> getARolesInteractionAsReceiver(DCRGraph dcrGraph, String role){
@@ -273,7 +299,8 @@ public class ProjectionImp implements IProjection {
     }
 
     // calculate the union of two maps.
-    private HashMap<String, HashSet<String>> unionMap(HashMap<String, HashSet<String>> map1, HashMap<String, HashSet<String>> map2){
+    private HashMap<String, HashSet<String>> unionMap
+    (HashMap<String, HashSet<String>> map1, HashMap<String, HashSet<String>> map2){
         HashMap<String, HashSet<String>> res = new HashMap<>();
         for (String key: map1.keySet()){
             for (String value: map1.get(key)){

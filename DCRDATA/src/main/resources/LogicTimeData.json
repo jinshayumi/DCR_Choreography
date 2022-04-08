@@ -20,15 +20,15 @@
       }
     },
     {
-      "identity": "Ask for Quote",
+      "identity": "Ask_for_Quote",
       "initiator": "Buyer",
-      "action": "Ask for Quote",
+      "action": "Ask_for_Quote",
       "receivers": ["Seller1", "Seller2"],
       "relationship": {
         "timeResponse": [
           {
             "to": "Timeout",
-            "time": 7000,
+            "time": 0,
             "condition": "true"
           },
           {
@@ -39,7 +39,7 @@
         "timeCondition": [
           {
             "to": "Timeout",
-            "time": 7000,
+            "time": 100,
             "condition": "true"
           }
         ],
@@ -105,21 +105,21 @@
       }
     },
     {
-      "identity": "Output replies",
+      "identity": "Output_replies",
       "initiator": "Buyer",
-      "action": "Output replies",
+      "action": "Output_replies",
       "receivers": [],
       "belongGroups": ["Handle quotes"],
       "relationship": {
         "timeExclusion": [
           {
-            "to": "Output replies",
+            "to": "Output_replies",
             "condition": "true"
           }
         ],
         "timeMilestone":[
           {
-            "to":"Input decision",
+            "to":"Input_decision",
             "condition": "true"
           }
         ]
@@ -135,25 +135,25 @@
       }
     },
     {
-      "identity": "Input decision",
+      "identity": "Input_decision",
       "initiator": "Buyer",
-      "action": "Input decision",
+      "action": "Input_decision",
       "receivers": [],
       "belongGroups": ["Handle quotes"],
       "relationship": {
         "timeExclusion": [
           {
-            "to": "Input decision",
+            "to": "Input_decision",
             "condition": "true"
           },
           {
-            "to": "Ask for Quote",
+            "to": "Ask_for_Quote",
             "condition": "!(Input_decision==\"askagain\")"
           }
         ],
         "timeResponse": [
           {
-            "to": "Ask for Quote",
+            "to": "Ask_for_Quote",
             "condition": "Input_decision==\"askagain\""
           },
           {
@@ -190,7 +190,8 @@
         "included": false
       },
       "eventData": {
-        "type": "?"
+        "type": "?",
+        "logic": ""
       }
     },
     {
@@ -258,7 +259,7 @@
       "relationship": {
         "timeMilestone": [
           {
-            "to": "Ask for Quote",
+            "to": "Ask_for_Quote",
             "condition": "true"
           }
         ]
@@ -269,7 +270,7 @@
       "relationship": {
         "timeMilestone": [
           {
-            "to": "Output replies",
+            "to": "Output_replies",
             "condition": "true"
           }
         ]
