@@ -1,11 +1,12 @@
 package models.jsonDCR;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class JsonDCR implements Serializable {
     private List<Event> events;
-    private List<Group> groups;
+    private List<Group> groups = new ArrayList<>();
 
     public List<Event> getEvents() {
         return events;

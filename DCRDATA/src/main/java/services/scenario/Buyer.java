@@ -7,12 +7,14 @@ import services.AsynchroService;
 import services.entities.Data;
 import services.entities.IntData;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 
 public class Buyer extends AsynchroService {
     private SubscribeThread subscribeThread;
 
-    public Buyer(String role, DCRGraph dcrGraph){
+    public Buyer(String role, DCRGraph dcrGraph)
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         super(role, dcrGraph);
         HashSet<String> subscribeTopics = dcrGraph.getSubscribe(role);
         subscribeThread = new SubscribeThread(subscribeTopics);

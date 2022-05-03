@@ -45,7 +45,7 @@ public class ExpParser {
             if (op.equals("==")){
                 Data leftData = calculate(map, left);
                 // int == int
-                if(leftData.getClass().getSimpleName().equals("IntDta")){
+                if(leftData.getClass().getSimpleName().equals("IntData")){
                     Integer leftVal = ((IntData) calculate(map, left)).getData();
                     Integer rightVal = ((IntData) calculate(map, right)).getData();
                     return new BoolData(leftVal==rightVal);
@@ -80,7 +80,7 @@ public class ExpParser {
             else if (op.equals("+")){
                 Data leftData = calculate(map, left);
                 // int + int
-                if(leftData.getClass().getSimpleName().equals("IntDta")){
+                if(leftData.getClass().getSimpleName().equals("IntData")){
                     Integer leftVal = ((IntData) calculate(map, left)).getData();
                     Integer rightVal = ((IntData) calculate(map, right)).getData();
                     return new IntData(leftVal+rightVal);

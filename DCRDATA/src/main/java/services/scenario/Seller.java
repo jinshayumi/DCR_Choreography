@@ -6,12 +6,14 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import services.AsynchroService;
 import services.entities.Data;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 
 public class Seller extends AsynchroService {
     private SubscribeThread subscribeThread;
 
-    public Seller(String role, DCRGraph dcrGraph){
+    public Seller(String role, DCRGraph dcrGraph)
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         super(role, dcrGraph);
         HashSet<String> subscribeTopics = dcrGraph.getSubscribe(role);
         subscribeThread = new SubscribeThread(subscribeTopics);

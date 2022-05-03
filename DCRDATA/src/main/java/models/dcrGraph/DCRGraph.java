@@ -6,6 +6,7 @@ import models.jsonDCR.timeRelationship.*;
 import models.parser.ExpParser;
 import services.entities.*;
 
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Time;
@@ -21,7 +22,7 @@ import java.util.*;
  * The state(will not be changed) include:
  *      1. relationships(with time information).
  *      2. */
-public class DCRGraph {
+public class DCRGraph implements Serializable {
     // E: events
     protected HashSet<String> events = new HashSet<>();
 
@@ -29,7 +30,7 @@ public class DCRGraph {
     private HashMap<String, String> eventsInitiator = new HashMap<>();
     private HashMap<String, HashSet<String>> eventsReceivers = new HashMap<>();
 
-    // M: marking.
+    // M: marking. (State)
     private DCRMarking dcrMarking = new DCRMarking();
 
     // L: Labels.
@@ -46,7 +47,7 @@ public class DCRGraph {
     private HashMap<String, HashSet<TimeInclusion>> timeInclusions = new HashMap<>();
     private HashMap<String, HashSet<TimeMilestone>> timeMilestones = new HashMap<>();
 
-    // A map to record the earliest executing time and deadlines.
+    // A map to record the earliest executing time and deadlines. (State)
     private  HashMap<String, Long> runTimeConditionMap = new HashMap<>();
     private HashMap<String, Long> runTimeResponseMap = new HashMap<>();
 
@@ -55,6 +56,17 @@ public class DCRGraph {
 
     // A map to store the data calculation logic for each event.
     private HashMap<String, EventData> dataLogicMap = new HashMap<>();
+
+    public DCRGraph deepClone() throws IOException, ClassNotFoundException {
+        // write the object to stream.
+        ByteArrayOutputStream bo=new ByteArrayOutputStream();
+        ObjectOutputStream oo=new ObjectOutputStream(bo);
+        oo.writeObject(this);
+        // read the object from stream.
+        ByteArrayInputStream bi=new ByteArrayInputStream(bo.toByteArray());
+        ObjectInputStream oi=new ObjectInputStream(bi);
+        return (DCRGraph) (oi.readObject());
+    }
 
 //    public DCRGraph(){
 //        for (String event:events){
@@ -327,7 +339,8 @@ public class DCRGraph {
 
     /**
      * Execute the event with the unsatisfied relationships.*/
-    public void execute(final String event) {
+    public void execute(final String event)
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         if(!events.contains(event)){
             return;
         }
@@ -437,7 +450,7 @@ public class DCRGraph {
             HashSet<String> traversed = new HashSet<>();
             dfsCheckDeadLock(possible, traversed);
         }
-        return deadlock;
+        return !deadlock;
     }
 
     private void dfsCheckDeadLock(String temp, HashSet<String> headEvent)
@@ -763,4 +776,106 @@ public class DCRGraph {
         }
         return true;
     }
+
+    // below three functions find the alternative pairs in a DCR graph.
+    public HashSet<HashSet<String>> findAlternativePairs()
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        HashSet<HashSet<String>> allPairs = getAllPairs();
+        HashSet<HashSet<String>> res = new HashSet<>();
+        for(HashSet<String> pair: allPairs){
+            List<String> arrayPair = new ArrayList<>(pair);
+            if (isSymmetric(arrayPair)){
+                res.add(pair);
+            }
+        }
+        return res;
+    }
+
+    private boolean isSymmetric(List<String> arrayPair)
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        // condition
+        String first = arrayPair.get(0);
+        String second = arrayPair.get(1);
+        HashSet<String> relationships = new HashSet<>();
+        relationships.add("TimeCondition");
+        relationships.add("TimeResponse");
+        relationships.add("TimeMilestone");
+        relationships.add("TimeInclusion");
+        relationships.add("TimeExclusion");
+        for (String relationship : relationships){
+            HashMap<String, HashSet<String>> binaryMap = getOneMap(relationship);
+            if ((!binaryMap.containsKey(first))&&(!binaryMap.containsKey(second))){
+            }
+            else if (binaryMap.containsKey(first)&&binaryMap.containsKey(second)){
+                HashSet<String> firstMap = binaryMap.get(first);
+                HashSet<String> secondMap = binaryMap.get(second);
+                // self.
+                boolean self_first = firstMap.remove(first);
+                boolean self_second = secondMap.remove(second);
+                if (self_first!=self_second){
+                    return false;
+                }
+                // to each other.
+                boolean other_first = firstMap.remove(second);
+                boolean other_second = secondMap.remove(first);
+                if (other_second!=other_first){
+                    return false;
+                }
+                // others are the same.
+                if (!binaryMap.get(first).equals(binaryMap.get(second))){
+                    return false;
+                }
+            }
+            else return false;
+        }
+
+        for (String relationship : relationships){
+            HashMap<String, HashSet<String>> binaryMap = getOneMap(relationship);
+            for (String key: binaryMap.keySet()){
+                if((!key.equals(first))&&(!key.equals(second))){
+                    boolean contain_first = binaryMap.get(key).contains(first);
+                    boolean contain_second = binaryMap.get(key).contains(second);
+                    if (contain_first!=contain_second) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private HashSet<HashSet<String>> getAllPairs(){
+        HashSet<HashSet<String>> res = new HashSet<>();
+        for (String event :events){
+            for (String event1: events){
+                if (!event.equals(event1)){
+                    HashSet<String> temp = new HashSet<>();
+                    temp.add(event);
+                    temp.add(event1);
+                    res.add(temp);
+                }
+            }
+        }
+        return res;
+    }
+
+    public HashSet<List<String>> findPaddingEvents(String interaction, int depth)
+            throws IOException, ClassNotFoundException, InvocationTargetException,
+            NoSuchMethodException, IllegalAccessException {
+        TraceReplay tr = new TraceReplay();
+        return tr.replayRes(deepClone(), depth, interaction);
+    }
+
+    public HashSet<String> enabledEvents()
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        HashSet<String> res = new HashSet<>();
+        for (String event: events){
+            if (enabled(event)){
+                res.add(event);
+            }
+        }
+        return res;
+    }
+
 }

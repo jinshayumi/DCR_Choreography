@@ -9,6 +9,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import services.entities.Data;
 import services.entities.VoidData;
+import visualization.DCRVisual;
 
 import javax.swing.*;
 import java.io.ByteArrayInputStream;
@@ -36,9 +37,14 @@ public class AsynchroService {
 
     private DCRGraph dcrGraph;
 
-    public AsynchroService(String role, DCRGraph dcrGraph){
+    private DCRVisual dcrVisual;
+
+    public AsynchroService(String role, DCRGraph dcrGraph)
+            throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         this.role = role;
         this.dcrGraph = dcrGraph;
+        dcrVisual = new DCRVisual(dcrGraph, role);
+        dcrVisual.display();
     }
 
     public void execute(String event){
@@ -62,6 +68,7 @@ public class AsynchroService {
             }
             // execute the event in the dcr graph.
             dcrGraph.execute(event);
+            dcrVisual.updateMarkings();
             System.out.println(role + ": " + "after handling "+ event
                     +", "
                     + "pending events are:"
@@ -107,6 +114,7 @@ public class AsynchroService {
                         ExpParser.calculate(dcrGraph.getDataMap(), ExpParser.parseExp(input)));
             }
             dcrGraph.execute(interaction);
+            dcrVisual.updateMarkings();
             System.out.println(role + ": after sending " + interaction + ", " + "pending events are: " +
                     dcrGraph.getIncludedPending().toString());
 

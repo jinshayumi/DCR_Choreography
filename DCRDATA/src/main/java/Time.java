@@ -21,8 +21,12 @@ public class Time {
         JsonDCR jsonDCR = modelImp.parseJsonToObject("/src/main/resources/LogicTimeData.json");
         // Transfer to DCR graph
         DCRGraph dcrGraph = modelImp.transferToDCRGraph(jsonDCR);
+        System.out.println("equal events: " + dcrGraph.findAlternativePairs());
 
         System.out.println("dead lock free using approximation? " +dcrGraph.checkDeadLock());
+        if (dcrGraph.checkDeadLock()){
+            System.out.println("time lock free using approximation? " + dcrGraph.checkTimeLock());
+        }
 
         HashSet<String> roles = new HashSet<>();
         roles.add("Buyer");
@@ -30,6 +34,7 @@ public class Time {
         roles.add("Seller2");
 
         HashMap<String, DCRGraph> dcrGraphHashMap = new HashMap<>();
+        HashMap<String, DCRGraph> monitorMap = new HashMap<>();
         HashMap<String, AsynchroService> asychroServiceHashMap = new HashMap<>();
         for (String role: roles){
             // if is projectable?
@@ -38,6 +43,7 @@ public class Time {
 
                 DCRGraph endUpProjection = projectionImp.Process(dcrGraph, role);
                 dcrGraphHashMap.put(role, endUpProjection);
+                monitorMap.put(role, projectionImp.Process(dcrGraph, role));
 
                 if(role.equals("Buyer")){
                     Buyer buyer = new Buyer(role, endUpProjection);
@@ -54,11 +60,18 @@ public class Time {
             }
         }
 
+        // Centralized listener.
+        MQTTListener mqttListener = new MQTTListener(monitorMap, dcrGraph);
+
+
         FileReader fr = new FileReader(System.getProperty("user.dir")+ "/src/main/resources/input.txt");
         BufferedReader br = new BufferedReader(fr);
         String line = "";
         String arrs[] = null;
         while ((line = br.readLine())!= null){
+            Scanner sc = new Scanner(System.in);
+            System.out.println("Input!:::");
+            sc.nextLine();
             arrs = line.split(" ");
             asychroServiceHashMap.get(arrs[0]).execute(arrs[1]);
         }
