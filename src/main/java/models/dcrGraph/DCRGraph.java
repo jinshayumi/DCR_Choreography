@@ -95,25 +95,25 @@ public class DCRGraph implements Serializable {
     /**
      * @Input: an event name
      * @Output: the events that depend on the input event.*/
-    public HashSet<String> getOnesDependency(String participant)
+    public HashSet<String> getOnesDependency(String eventName)
             throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         HashSet<String> res = new HashSet<>();
         // 1. itself
-        res.add(participant);
+        res.add(eventName);
 
         // 2. e' -> e.
         for (String e: events){
-            if(FiveRelation(e, participant)){
+            if(FiveRelation(e, eventName)){
                 res.add(e);
             }
         }
 
-        // 3.
-        HashSet<String> condition3 = findCondition3(participant);
+        // 3. e' (include/exclude) e'' (condition/milestone) e
+        HashSet<String> condition3 = findCondition3(eventName);
         res.addAll(condition3);
 
-        // 4.
-        HashSet<String> condition4 = findCondition4(participant);
+        // 4. e' (response) e'' (milestone) e
+        HashSet<String> condition4 = findCondition4(eventName);
         res.addAll(condition4);
         return res;
     }
@@ -230,8 +230,8 @@ public class DCRGraph implements Serializable {
     }
 
     /**
-     * return if the DCR graph is projectable for a role.*/
-    public boolean label(HashSet<String> dependEvents, String role) {
+     * return if a role is one of the participant in an interaction .*/
+    public boolean isParticipant(HashSet<String> dependEvents, String role) {
         for (String event: dependEvents){
             if ((!eventsInitiator.get(event).equals(role))&&(!eventsReceivers.get(event).contains(role))){
                 return false;

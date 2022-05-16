@@ -10,6 +10,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class ExpParser {
+    /**
+     * Interface to calculate an Expression to some value of Data type.
+     The environment is a map of <String, Data>, which records the value of events.
+     */
     public static Data calculate(HashMap<String, Data> map, Expression expression){
         // variable.
         if (expression.isNameExpr()){
@@ -125,6 +129,7 @@ public class ExpParser {
         return null;
     }
 
+    // Interface to parse a String into a structural expression.
     public static Expression parseExp(String exp){
         return StaticJavaParser.parseExpression(exp);
     }

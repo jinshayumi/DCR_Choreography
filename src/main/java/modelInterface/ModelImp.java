@@ -96,7 +96,7 @@ public class ModelImp implements IModel {
         HashSet<String> initiateEvents = getARolesInteractions(dcrGraph,role);
         for (String event: initiateEvents){
             HashSet<String> dependEvents = getOnesDependency(dcrGraph, event);
-            if(!dcrGraph.label(dependEvents, role)){
+            if(!dcrGraph.isParticipant(dependEvents, role)){
                 return false;
             }
         }

@@ -21,7 +21,7 @@ import java.util.*;
 
 public class SynchronousService {
     public String HOST = "tcp://127.0.0.1:61613";
-    public int qos = 1;
+    public int qos = 2;
     public String userName = "admin";
     public String passWord = "password";
     public MemoryPersistence persistence = new MemoryPersistence();

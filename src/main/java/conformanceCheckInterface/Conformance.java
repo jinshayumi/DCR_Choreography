@@ -22,8 +22,10 @@ public class Conformance implements IConformance{
         // Transfer to DCR graph
         DCRGraph dcrGraph = modelImp.transferToDCRGraph(jsonDCR);
         List<TimedEvent> sequence = parseLog(logPath);
+        // check the execution of events one by one.
         for (TimedEvent activity: sequence){
             String identity = activity.getIdentity();
+            // if this event is enabled by relationships and time constraints.
             if (dcrGraph.enabled(identity, activity.getTime())){
                 // if input event: set the data.
                 if (dcrGraph.getDataLogicMap().get(identity).getType().equals("?")){

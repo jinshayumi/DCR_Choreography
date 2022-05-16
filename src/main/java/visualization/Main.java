@@ -1,6 +1,5 @@
 package visualization;
 
-import org.graphstream.graph.Element;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.DefaultGraph;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
@@ -12,16 +11,8 @@ import org.graphstream.ui.view.Viewer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class Main {
-
-
     public static void main(String[] args) {
         Main main = new Main();
         SwingUtilities.invokeLater(main::display);

@@ -103,7 +103,8 @@ public class DCRVisual {
                 "text-color: black;" +
                 "text-size: 15;" +
                 "text-background-mode: none;" +
-                "text-style: bold;"
+                "text-style: bold;" +
+                "stroke-mode: plain;"
                 ;
         String interactionWithMarking = " ";
         // sender or receiver.
@@ -140,7 +141,8 @@ public class DCRVisual {
             property += "fill-mode: none;";
         }
         if (dcrGraph.enabled(interaction)){
-            interactionWithMarking += "(enabled)";
+//            interactionWithMarking += "(enabled)";
+            property += "stroke-color: green;";
         }
         node.setAttribute("ui.label", interactionWithMarking);
         node.setAttribute("ui.style", property);
