@@ -1,0 +1,36 @@
+{
+  "events": [
+    {
+      "identity": "B",
+      "relationship": {
+        "timeCondition": [
+          {
+            "to": "C",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      },
+      "eventData": {
+        "type": "int",
+        "logic": "25"
+      }
+    },
+    {
+      "identity": "C",
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      },
+      "eventData": {
+        "type": "int",
+        "logic": "B"
+      }
+    }
+  ]
+}

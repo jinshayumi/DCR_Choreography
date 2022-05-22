@@ -635,25 +635,25 @@ public class DCRGraph implements Serializable {
             return false;
         }
 
-        // 2. if e o-> f or e ->+ f, there is a path from e to f.
-        for (String busy : busyEvents){
+        for (String busy: busyEvents){
             dfsInhibitors(busy);
-            for (String key: getOneMap("TimeResponse").keySet()){
-                for (String val: getOneMap("TimeResponse").get(key)){
-                    if (inhibitors.contains(key)&&inhibitors.contains(val)){
-                        if (!havePath(key, val)){
-                            return false;
-                        }
+        }
+        // 2. if e o-> f or e ->+ f, there is a path from e to f.
+        for (String key: getOneMap("TimeResponse").keySet()){
+            for (String val: getOneMap("TimeResponse").get(key)){
+                if (inhibitors.contains(key)&&inhibitors.contains(val)){
+                    if (!havePath(key, val)){
+                        return false;
                     }
                 }
             }
+        }
 
-            for (String key: getOneMap("TimeInclusion").keySet()){
-                for (String val: getOneMap("TimeInclusion").get(key)){
-                    if (inhibitors.contains(key)&&inhibitors.contains(val)){
-                        if (!havePath(key, val)){
-                            return false;
-                        }
+        for (String key: getOneMap("TimeInclusion").keySet()){
+            for (String val: getOneMap("TimeInclusion").get(key)){
+                if (inhibitors.contains(key)&&inhibitors.contains(val)){
+                    if (!havePath(key, val)){
+                        return false;
                     }
                 }
             }
@@ -673,8 +673,8 @@ public class DCRGraph implements Serializable {
         return true;
     }
 
-
-    public boolean havePath(String from, String to)
+    // There is a path from source to sink in the inhibotor graph
+    private boolean havePath(String from, String to)
             throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         HashSet<String> reachable = new HashSet<>();
         dfsOneReachable(from, reachable);
@@ -702,8 +702,12 @@ public class DCRGraph implements Serializable {
         }
     }
 
+    // dfs to generate the inhibitor graph from a busy event.
     private void dfsInhibitors(String busy)
             throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+        if (inhibitors.contains(busy)){
+            return;
+        }
         inhibitors.add(busy);
         HashSet<String> temp = new HashSet<>();
         for (String key: getOneMap("TimeCondition").keySet()){
@@ -712,7 +716,7 @@ public class DCRGraph implements Serializable {
             }
         }
         for (String key: getOneMap("TimeMilestone").keySet()){
-            if(getOneMap("TimeCondition").get(key).contains(busy)){
+            if(getOneMap("TimeMilestone").get(key).contains(busy)){
                 temp.add(key);
             }
         }

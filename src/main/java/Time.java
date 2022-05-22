@@ -27,7 +27,7 @@ public class Time {
         if (dcrGraph.checkDeadLock()){
             System.out.println("time lock free using approximation? " + dcrGraph.checkTimeLock());
         }
-        System.out.println("have path: "+ dcrGraph.havePath("Input_decision", "Quote"));
+//        System.out.println("have path: "+ dcrGraph.havePath("Input_decision", "Quote"));
 
         HashSet<String> roles = new HashSet<>();
         roles.add("Buyer");

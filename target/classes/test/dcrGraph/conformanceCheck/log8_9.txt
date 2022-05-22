@@ -1,0 +1,2 @@
+B,0,int,20
+C,0,void,null

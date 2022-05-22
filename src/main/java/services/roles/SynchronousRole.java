@@ -53,9 +53,6 @@ public class SynchronousRole extends SynchronousService {
                     }
 
                     public void messageArrived(String topic, MqttMessage message) throws Exception {
-//                        System.out.println(role + ": " + "topic:"+topic);
-//                        System.out.println(role + ": " + "Qos:"+message.getQos());
-//                        System.out.println(role + ": " + "message content:"+ new String(message.getPayload()));
 
                         String interaction = topic;
 

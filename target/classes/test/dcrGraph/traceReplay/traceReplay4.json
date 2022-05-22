@@ -1,0 +1,44 @@
+{
+  "events": [
+    {
+      "identity": "A",
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "B",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "B",
+      "relationship": {
+        "timeCondition": [
+          {
+            "to": "C",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "C",
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    }
+  ]
+}

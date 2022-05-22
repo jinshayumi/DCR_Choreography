@@ -1,0 +1,56 @@
+{
+  "events": [
+    {
+      "identity": "A",
+      "relationship": {
+        "timeCondition": [
+          {
+            "to": "B",
+            "condition": "true"
+          }
+        ],
+        "timeResponse": [
+          {
+            "to": "B",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": true,
+        "included": true
+      }
+    },
+    {
+      "identity": "B",
+      "relationship": {
+        "timeCondition": [
+          {
+            "to": "C",
+            "condition": "true"
+          }
+        ],
+        "timeResponse": [
+          {
+            "to": "C",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "C",
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    }
+  ]
+}

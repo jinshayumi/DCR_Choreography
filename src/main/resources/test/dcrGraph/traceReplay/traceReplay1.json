@@ -1,0 +1,28 @@
+{
+  "events": [
+    {
+      "identity": "B",
+      "relationship": {
+        "timeResponse": [
+          {
+            "to": "C",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "C",
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    }
+  ]
+}
