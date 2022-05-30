@@ -1,0 +1,250 @@
+{
+  "events": [
+    {
+      "identity": "interactionAsk",
+      "initiator": "Buyer",
+      "action": "Ask",
+      "receivers": ["Seller1", "Seller2"],
+      "belongGroups": ["Negotiate"],
+      "relationship": {
+        "timeCondition": [
+          {
+            "to": "Quotes",
+            "condition": "true"
+          }
+        ],
+        "timeResponse": [
+          {
+            "to": "Quotes",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Quote1",
+      "initiator": "Seller1",
+      "action": "Quote",
+      "receivers": ["Buyer"],
+      "belongGroups": ["Quotes", "Negotiate"],
+      "relationship": {
+        "timeResponse": [
+          {
+            "to": "Accept1",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Quote2",
+      "initiator": "Seller2",
+      "action": "Quote",
+      "receivers": ["Buyer"],
+      "belongGroups": ["Quotes", "Negotiate"],
+      "relationship": {
+        "timeResponse": [
+          {
+            "to": "Accept2",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Accept1",
+      "initiator": "Buyer",
+      "action": "Accept1",
+      "receivers": ["Seller1", "Seller2"],
+      "belongGroups": ["Decide"],
+      "relationship": {
+        "timeInclusion": [
+          {
+            "to": "Order1",
+            "condition": "true"
+          }
+        ],
+        "timeResponse": [
+          {
+            "to": "Order1",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Reject",
+      "initiator": "Buyer",
+      "action": "Accept1",
+      "receivers": ["Seller1", "Seller2"],
+      "belongGroups": ["Decide"],
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Accept2",
+      "initiator": "Buyer",
+      "action": "Accept2",
+      "receivers": ["Seller1", "Seller2"],
+      "belongGroups": ["Decide"],
+      "relationship": {
+        "timeInclusion": [
+          {
+            "to": "Order2",
+            "condition": "true"
+          }
+        ],
+        "timeResponse": [
+          {
+            "to": "Order2",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Order1",
+      "initiator": "Seller1",
+      "action": "Order",
+      "receivers": ["Shipper"],
+      "belongGroups": ["Orders", "Ship"],
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "Order1",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Order2",
+      "initiator": "Seller2",
+      "action": "Order",
+      "receivers": ["Shipper"],
+      "belongGroups": ["Orders", "Ship"],
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "Order2",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "ShipDetails",
+      "initiator": "Shipper",
+      "action": "Details",
+      "receivers": ["Buyer"],
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "ShipDetails",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    }
+  ],
+
+  "groups": [
+    {
+      "identity": "Quotes",
+      "relationship": {
+        "timeCondition": [
+          {
+            "to": "Decide",
+            "condition": "true"
+          }
+        ],
+        "timeMilestone": [
+          {
+            "to": "Decide",
+            "condition": "true"
+          }
+        ]
+      }
+    },
+    {
+      "identity": "Decide",
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "Decide",
+            "condition": "true"
+          },
+          {
+            "to": "Negotiate",
+            "condition": "true"
+          }
+        ]
+      }
+    },
+    {
+      "identity": "Negotiate"
+    },
+    {
+      "identity": "Orders",
+      "relationship": {
+        "timeInclusion": [
+          {
+            "to": "ShipDetails",
+            "condition": "true"
+          }
+        ],
+        "relationship": {
+          "timeResponse": [
+            {
+              "to": "ShipDetails",
+              "condition": "true"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

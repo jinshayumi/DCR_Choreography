@@ -1,3 +1,0 @@
-A,0,void,null
-B,5,void,null
-C,12,void,null
