@@ -2,6 +2,10 @@
 
 This project includes the implementations in paper **Timed Declarative Choreographies with Data**.
 
+# Preminilaries
+
+JDK 1.8, Maven, MQTT broker.
+
 ## Define the DCR Choreography in JSON format
 
 There are events and nested groups in DCR choreography. They can be expressed in a formatted JSON file. Time information is inclueded in this JSON file. Examples can be found in the resources directory.
@@ -30,11 +34,14 @@ The implementation follow the ideas in the paper. To get a DCR choreography's en
 
 ​	Notice that the data part now should be specified in the end points. They are not in the JSON choreography now.
 
-## Examples:
+## Tests and Examples:
+​ To run the tests regarding choreography simulation, a MQTT broker should be set up first.
 
 ​	Roles use MQTT as a message broker to send messages to simulate the interactions.
 
 ​	Examples can be found in the **services** directory. In the main branch, there are 2 senarios and the choreography does not contain time or data, and there are two examples(one is the one in the paper **Declarative Choreographies and Liveness**). In the **jinshayumi-time** branch, the choreography only contains the extension for time. In the **jinshayumi-time-data** branch, the choreography contains both time and data, and the example is the one in the paper **Timed Declarative Choreographies with Data**.
+
+​ **jinshayumi-data-time-parser-calculator** contains all the tests regarding DCR graphs and DCR choreographies. ust 'mvn test' to test them.
 
 ### 
 
