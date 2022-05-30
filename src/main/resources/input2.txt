@@ -1,0 +1,6 @@
+Buyer Ask_for_Quote
+Seller1 Quote1
+Seller2 Quote2
+Buyer Output_replies
+Buyer Input_decision
+Buyer Accept2

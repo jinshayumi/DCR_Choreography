@@ -1,0 +1,50 @@
+{
+  "events": [
+    {
+      "identity": "A",
+      "initiator": "role1",
+      "receivers": ["role2"],
+      "relationship": {
+        "timeResponse": [
+          {
+            "to": "B",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "B",
+      "initiator": "role1",
+      "receivers": ["role2"],
+      "relationship": {
+        "timeMilestone": [
+          {
+            "to": "C",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "C",
+      "initiator": "role2",
+      "receivers": ["role1"],
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    }
+  ]
+}

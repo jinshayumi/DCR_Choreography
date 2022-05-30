@@ -104,6 +104,7 @@ public class DCRVisual {
                 "text-size: 15;" +
                 "text-background-mode: none;" +
                 "text-style: bold;" +
+                "text-size: 20;" +
                 "stroke-mode: plain;"
                 ;
         String interactionWithMarking = " ";
