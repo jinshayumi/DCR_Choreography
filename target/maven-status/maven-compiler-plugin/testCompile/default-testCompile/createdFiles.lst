@@ -1,0 +1,10 @@
+dcrChoreography/synchronousSystem/SynchronousIntegration.class
+DebugTest/DeepCopyTest.class
+dcrGraph/conformanceCheck/TestConformanceCheck.class
+dcrChoreography/dataParser/TestDataParser.class
+DebugTest/TestTraceReplay.class
+dcrGraph/traceReplay/TestTraceReplay.class
+dcrGraph/deadlock/TestDeadLock.class
+dcrChoreography/projectability/TestProjectability.class
+DebugTest/Test.class
+dcrGraph/timelock/TestTimeLock.class

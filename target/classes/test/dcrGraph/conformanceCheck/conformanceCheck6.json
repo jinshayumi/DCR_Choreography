@@ -1,0 +1,46 @@
+{
+  "events": [
+    {
+      "identity": "A",
+      "relationship": {
+        "timeResponse": [
+          {
+            "to": "B",
+            "condition": "true",
+            "time": 7
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "B",
+      "relationship": {
+        "timeResponse": [
+          {
+            "to": "C",
+            "condition": "true",
+            "time": 8
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "C",
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    }
+  ]
+}

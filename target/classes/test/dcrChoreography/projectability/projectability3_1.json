@@ -1,0 +1,32 @@
+{
+  "events": [
+    {
+      "identity": "A",
+      "initiator": "role2",
+      "receivers": ["role1"],
+      "relationship": {
+        "timeInclusion": [
+          {
+            "to": "B",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "B",
+      "initiator": "role2",
+      "receivers": ["role1"],
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    }
+  ]
+}
