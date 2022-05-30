@@ -24,6 +24,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.HashSet;
 
+/**
+ * The coordinator to coordinate different end-points.*/
 public class SynchronousCoordinator {
 
     private String role = "MQTTListener";
@@ -64,8 +66,8 @@ public class SynchronousCoordinator {
         SwingUtilities.invokeLater(new MultipleViews());
     }
 
+    // visualization
     private class MultipleViews implements Runnable {
-
         @Override
         public void run() {
             JFrame frame = new JFrame("Multiple Views");
@@ -193,6 +195,8 @@ public class SynchronousCoordinator {
         sampleClient.close();
     }
 
+
+    // function is called when a request is received.
     public void handleMessage(String topic, MqttMessage message)
             throws ClassNotFoundException, InvocationTargetException, NoSuchMethodException,
             IllegalAccessException, MqttException {

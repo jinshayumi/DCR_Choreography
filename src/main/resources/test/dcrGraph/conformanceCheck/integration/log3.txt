@@ -1,0 +1,12 @@
+Ask_for_Quote,0,void,null
+Quote1,0,int,25
+Quote2,0,int,15
+Output_replies,0,string,accept2
+Input_decision,0,string,askagain
+Ask_for_Quote,0,void,null
+Quote1,0,int,25
+Quote2,0,int,15
+Output_replies,0,string,accept2
+Input_decision,0,string,reject
+Reject,0,void,null
+Timeout,6000000,void,null

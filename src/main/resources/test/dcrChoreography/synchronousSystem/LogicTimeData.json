@@ -1,0 +1,280 @@
+{
+  "events": [
+    {
+      "identity": "Timeout",
+      "initiator": "Buyer",
+      "action": "Timeout",
+      "receivers": ["Seller1", "Seller2"],
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "Get quotes",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Ask_for_Quote",
+      "initiator": "Buyer",
+      "action": "Ask_for_Quote",
+      "receivers": ["Seller1", "Seller2"],
+      "relationship": {
+        "timeResponse": [
+          {
+            "to": "Timeout",
+            "time": 8000000,
+            "condition": "true"
+          },
+          {
+            "to": "Handle quotes",
+            "condition": "true"
+          }
+        ],
+        "timeCondition": [
+          {
+            "to": "Timeout",
+            "time": 7000000,
+            "condition": "true"
+          }
+        ],
+        "timeInclusion": [
+          {
+            "to": "Handle quotes",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": true
+      }
+    },
+    {
+      "identity": "Quote1",
+      "initiator": "Seller1",
+      "action": "Quote",
+      "receivers": ["Buyer"],
+      "belongGroups": ["Get quotes", "Handle quotes"],
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "Quote1",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      },
+      "eventData": {
+        "type": "int",
+        "logic": "25"
+      }
+    },
+    {
+      "identity": "Quote2",
+      "initiator": "Seller2",
+      "action": "Quote",
+      "receivers": ["Buyer"],
+      "belongGroups": ["Get quotes", "Handle quotes"],
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "Quote2",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      },
+      "eventData": {
+        "type": "int",
+        "logic": "15"
+      }
+    },
+    {
+      "identity": "Output_replies",
+      "initiator": "Buyer",
+      "action": "Output_replies",
+      "receivers": [],
+      "belongGroups": ["Handle quotes"],
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "Output_replies",
+            "condition": "true"
+          }
+        ],
+        "timeMilestone":[
+          {
+            "to":"Input_decision",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      },
+      "eventData": {
+        "type": "String",
+        "logic": "(Quote1<20&&Quote2<20)?((Quote1<Quote2)?(\"accept1\"):(\"accept1\")):((Quote1<20)?(\"accept1\"):((Quote2<20)?(\"accept2\"):(\"reject\")))"
+      }
+    },
+    {
+      "identity": "Input_decision",
+      "initiator": "Buyer",
+      "action": "Input_decision",
+      "receivers": [],
+      "belongGroups": ["Handle quotes"],
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "Input_decision",
+            "condition": "true"
+          },
+          {
+            "to": "Ask_for_Quote",
+            "condition": "!(Input_decision==\"askagain\")"
+          }
+        ],
+        "timeResponse": [
+          {
+            "to": "Ask_for_Quote",
+            "condition": "Input_decision==\"askagain\""
+          },
+          {
+            "to": "Accept1",
+            "condition": "true"
+          },
+          {
+            "to": "Accept2",
+            "condition": "true"
+          },
+          {
+            "to": "Reject",
+            "condition": "true"
+          }
+        ],
+        "timeInclusion": [
+          {
+            "to": "Accept1",
+            "condition": "Input_decision==\"accept1\""
+          },
+          {
+            "to": "Accept2",
+            "condition": "Input_decision==\"accept2\""
+          },
+          {
+            "to": "Reject",
+            "condition": "Input_decision==\"reject\""
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      },
+      "eventData": {
+        "type": "?",
+        "logic": ""
+      }
+    },
+    {
+      "identity": "Accept1",
+      "initiator": "Buyer",
+      "action": "Accept",
+      "receivers": ["Seller1"],
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "Accept1",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Accept2",
+      "initiator": "Buyer",
+      "action": "Accept",
+      "receivers": ["Seller2"],
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "Accept2",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    },
+    {
+      "identity": "Reject",
+      "initiator": "Buyer",
+      "action": "Reject",
+      "receivers": ["Seller1", "Seller2"],
+      "relationship": {
+        "timeExclusion": [
+          {
+            "to": "Reject",
+            "condition": "true"
+          }
+        ]
+      },
+      "marking": {
+        "executed": false,
+        "pending": false,
+        "included": false
+      }
+    }
+  ],
+
+  "groups": [
+    {
+      "identity": "Handle quotes",
+      "relationship": {
+        "timeMilestone": [
+          {
+            "to": "Ask_for_Quote",
+            "condition": "true"
+          }
+        ]
+      }
+    },
+    {
+      "identity": "Get quotes",
+      "relationship": {
+        "timeMilestone": [
+          {
+            "to": "Output_replies",
+            "condition": "true"
+          }
+        ]
+      }
+    }
+  ]
+}

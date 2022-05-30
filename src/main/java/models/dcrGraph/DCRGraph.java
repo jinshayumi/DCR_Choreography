@@ -452,11 +452,14 @@ public class DCRGraph implements Serializable {
             for (TimeResponse timeResponse: timeResponses.get(event)){
                 if (satisfy(timeResponse.getCondition()) && timeResponse.getTime()!=0){
                     Long responseTime = time+timeResponse.getTime();
-                    if (!runTimeResponseMap.containsKey(timeResponse.getTo()))
-                        runTimeResponseMap.put(timeResponse.getTo(), responseTime);
-                    else {
-                        runTimeResponseMap.put(timeResponse.getTo(), Math.min(responseTime, timeResponse.getTime()));
-                    }
+                    // update the deadline directly.
+                    runTimeResponseMap.put(timeResponse.getTo(), responseTime);
+
+//                    if (!runTimeResponseMap.containsKey(timeResponse.getTo()))
+//                        runTimeResponseMap.put(timeResponse.getTo(), responseTime);
+//                    else {
+//                        runTimeResponseMap.put(timeResponse.getTo(), Math.min(responseTime, timeResponse.getTime()));
+//                    }
                 }
             }
         }

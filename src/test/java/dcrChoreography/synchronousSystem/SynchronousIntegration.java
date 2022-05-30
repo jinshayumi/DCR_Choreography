@@ -19,7 +19,8 @@ public class SynchronousIntegration {
         ModelImp modelImp = new ModelImp();
         ProjectionImp projectionImp = new ProjectionImp();
         // Load from Json
-        JsonDCR jsonDCR = modelImp.parseJsonToObject("/src/main/resources/LogicTimeData.json");
+        JsonDCR jsonDCR = modelImp.parseJsonToObject
+                ("/src/main/resources/test/dcrChoreography/synchronousSystem/LogicTimeData.json");
         // Transfer to DCR graph
         DCRGraph dcrGraph = modelImp.transferToDCRGraph(jsonDCR);
         System.out.println("equal events: " + dcrGraph.findAlternativePairs());
@@ -59,6 +60,7 @@ public class SynchronousIntegration {
 
         SynchronousCoordinator synchronousCoordinator = new SynchronousCoordinator(monitorMap, dcrGraph);
 
+        // change to input2.txt to test accept2 simulation.
         FileReader fr = new FileReader(System.getProperty("user.dir")+ "/src/main/resources/input.txt");
         BufferedReader br = new BufferedReader(fr);
         String line = "";
